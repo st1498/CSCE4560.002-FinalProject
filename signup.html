@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sign Up - CyberMax Security</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #F6F6F6; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        
+        .box { 
+            background: white; 
+            padding: 50px; 
+            border-radius: 40px; 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1); 
+            width: 420px; 
+            text-align: center;
+        }
+        
+        .logo { font-size: 28px; font-weight: bold; color: #990100; text-decoration: none; display: block; margin-bottom: 25px; }
+        
+        input { 
+            width: 100%; 
+            padding: 14px; 
+            margin: 10px 0; 
+            border: 1px solid #E8E8E8; 
+            border-radius: 10px; 
+            box-sizing: border-box; 
+            background: #F9F9F9;
+            font-size: 14px;
+        }
+
+        input:focus { outline: none; border-color: #990100; }
+        
+        .btn { 
+            width: 100%; 
+            padding: 14px; 
+            background: #990100; 
+            color: white; 
+            border: none; 
+            border-radius: 10px; 
+            cursor: pointer; 
+            font-weight: bold; 
+            font-size: 16px;
+            margin-top: 15px; 
+            transition: 0.3s; 
+        }
+        .btn:hover { background: #B90504; transform: translateY(-1px); }
+        
+        .rules { font-size: 11px; color: #666; margin: 5px 0 15px; text-align: left; padding-left: 5px; line-height: 1.4; }
+        
+        .login-link { margin-top: 20px; font-size: 14px; color: #333; }
+        .login-link a { color: #990100; text-decoration: none; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <a href="homepage.html" class="logo">CyberMax Security</a>
+        
+        <input type="text" id="fullname" placeholder="Full Name">
+        <input type="text" id="username-signup" placeholder="Username">
+        <input type="email" id="email-signup" placeholder="Email Address">
+        
+        <input type="password" id="pass-signup" placeholder="Password">
+        <div class="rules">Security Policy: Min 12 characters, including Uppercase, Lowercase, Number, and Symbol.</div>
+        
+        <input type="password" id="confirm-pass" placeholder="Confirm Password">
+        
+        <button class="btn" onclick="handleSignUp()">Create Account</button>
+
+        <div class="login-link">
+            Already have an account? <a href="signin.html">Sign In</a>
+        </div>
+    </div>
+
+    <script>
+        function handleSignUp() {
+            const fullName = document.getElementById('fullname').value;
+            const userValue = document.getElementById('username-signup').value;
+            const emailValue = document.getElementById('email-signup').value;
+            const passValue = document.getElementById('pass-signup').value;
+            const confirmValue = document.getElementById('confirm-pass').value;
+
+            
+            if (!fullName || !userValue || !emailValue || !passValue) {
+                alert("Please fill in all security fields.");
+                return;
+            }
+
+            
+            if (passValue.length < 12) {
+                alert("Security Alert: Password must be at least 12 characters long.");
+                return;
+            }
+
+            if (passValue !== confirmValue) {
+                alert("Passwords do not match. Please verify your credentials.");
+                return;
+            }
+
+           
+            localStorage.setItem('username', userValue);
+            localStorage.setItem('userEmail', emailValue);
+            localStorage.setItem('userPassword', passValue); 
+
+            alert("Account created successfully! Welcome to CyberMax Security.");
+            window.location.href = 'signin.html';
+        }
+    </script>
+</body>
+</html>
