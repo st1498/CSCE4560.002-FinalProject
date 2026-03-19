@@ -1,2 +1,5 @@
 # Ignore local directories
 .venv/
+
+# Ignore local files
+.DS_Store
