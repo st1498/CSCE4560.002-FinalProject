@@ -1,5 +1,6 @@
 # Ignore local directories
 .venv/
+cybermax/__pycache__/
 
 # Ignore local files
 .DS_Store
