@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Checkout - CyberMax Security</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; background: #F6F6F6; color: #333333; }
+        header { background: #333333; color: white; padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 24px; font-weight: bold; color: #990100; text-decoration: none; }
+        
+        nav a, nav a:visited { color: white; text-decoration: none; margin-left: 20px; font-size: 14px; }
+        nav a:hover { color: #990100; }
+        
+        .breadcrumb { padding: 10px 5%; background: #E8E8E8; font-size: 12px; border-bottom: 1px solid #ccc; }
+
+        .container { 
+            background: white; 
+            margin: 40px auto; 
+            padding: 50px; 
+            max-width: 800px; 
+            border-radius: 40px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05); 
+        }
+
+        h2 { color: #990100; margin-top: 0; border-bottom: 2px solid #F6F6F6; padding-bottom: 10px; }
+        h3 { margin-top: 30px; font-size: 18px; color: #555; }
+        
+        .flex { display: flex; gap: 15px; margin-bottom: 10px; }
+        
+        input { 
+            width: 100%; 
+            padding: 14px; 
+            margin: 8px 0; 
+            border: 1px solid #E8E8E8; 
+            border-radius: 10px; 
+            box-sizing: border-box; 
+            background: #F9F9F9;
+            font-size: 14px;
+        }
+
+        .btn { 
+            background: #990100; 
+            color: white; 
+            padding: 16px 32px; 
+            border-radius: 10px; 
+            text-decoration: none; 
+            display: inline-block; 
+            font-weight: bold; 
+            transition: 0.3s; 
+            border: none; 
+            cursor: pointer; 
+            margin-top: 30px;
+            width: 100%;
+            font-size: 16px;
+        }
+        .btn:hover { background: #B90504; }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="index.html" class="logo">CyberMax Security</a>
+        <nav><span id="display-user">User</span> | <a href="index.html">Home</a> | <a href="#" onclick="handleLogout()">Logout</a></nav>
+    </header>
+    <div class="breadcrumb">Home > Cart > <strong>Checkout</strong></div>
+    
+    <div class="container">
+        <h2>Checkout Information</h2>
+        
+        <h3>Personal Details</h3>
+        <div class="flex">
+            <input type="text" id="fname" placeholder="First Name">
+            <input type="text" id="lname" placeholder="Last Name">
+        </div>
+        
+        <h3>Billing Address</h3>
+        <input type="text" id="street" placeholder="Street Address">
+        <div class="flex">
+            <input type="text" id="city" placeholder="City">
+            <input type="text" id="state" placeholder="State">
+            <input type="text" id="zip" placeholder="Zip Code">
+        </div>
+        
+        <h3>Payment Method</h3>
+        <input type="text" placeholder="Credit Card Number (Form Only - Not Stored)">
+        <div class="flex">
+            <input type="text" placeholder="MM/YY" style="flex: 2;">
+            <input type="text" placeholder="CVV" style="flex: 1;">
+        </div>
+        
+        <button class="btn" onclick="processPayment()">Process Payment</button>
+    </div>
+
+   <script>
+    const user = localStorage.getItem('username');
+
+    if (user && document.getElementById('display-user')) {
+        document.getElementById('display-user').innerText = user;
+    }
+
+    function processPayment() {
+        const street = document.getElementById('street').value;
+        const city = document.getElementById('city').value;
+        const state = document.getElementById('state').value;
+        const zip = document.getElementById('zip').value;
+
+        if (street && city && state && zip) {
+            const fullAddress = `${street}, ${city}, ${state} ${zip}`;
+            localStorage.setItem('userAddress', fullAddress);
+            window.location.href = 'confirmation.html';
+        } else {
+            alert("Please complete the billing address to secure your order.");
+        }
+    }
+   
+    function handleLogout() {
+        localStorage.clear(); 
+        alert("Security session ended. You have been safely logged out.");
+        window.location.href = 'signin.html';
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Confirmation - CyberMax Security</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; background: #F6F6F6; color: #333333; }
+        header { background: #333333; color: white; padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 24px; font-weight: bold; color: #990100; text-decoration: none; }
+        
+        nav a, nav a:visited { color: white; text-decoration: none; margin-left: 20px; font-size: 14px; }
+        nav a:hover { color: #990100; }
+
+        .container { 
+            background: white; 
+            margin: 80px auto; 
+            padding: 60px; 
+            max-width: 600px; 
+            border-radius: 40px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05); 
+            text-align: center;
+        }
+
+        h1 { color: #990100; margin-top: 0; font-size: 32px; }
+        
+        .key-box { 
+            background: #F9F9F9; 
+            padding: 20px; 
+            border-radius: 15px; 
+            border: 1px dashed #ccc; 
+            font-family: monospace; 
+            font-size: 18px; 
+            margin: 25px 0;
+            color: #333;
+        }
+
+        .btn { 
+            background: #990100; 
+            color: white; 
+            padding: 15px 30px; 
+            border-radius: 10px; 
+            text-decoration: none; 
+            display: inline-block; 
+            font-weight: bold; 
+            transition: 0.3s; 
+            border: none; 
+            cursor: pointer; 
+        }
+        .btn:hover { background: #B90504; }
+
+        .profile-link { 
+            display: inline-block; 
+            margin-top: 20px; 
+            color: #333; 
+            text-decoration: underline; 
+            font-size: 14px; 
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="index.html" class="logo">CyberMax Security</a>
+        <nav><span id="display-user">User</span> | <a href="index.html">Home</a> | <a href="#" onclick="handleLogout()">Logout</a></nav>
+    </header>
+    
+    <div class="container">
+        <h1>✔ Order Confirmed</h1>
+        <p>Your information has been processed. Thank you for choosing CyberMax, <span id="customer-name">User</span>!</p>
+        
+        <div class="key-box">LICENSE-KEY: CM-882-QK9-31</div>
+        
+        <a href="#" class="btn">Download Product</a>
+        <br>
+        <a href="profile.html" class="profile-link">View Keys in Profile</a>
+    </div>
+
+    <script>
+   
+    const user = localStorage.getItem('username') || "User";
+    
+    
+    if (document.getElementById('display-user')) {
+        document.getElementById('display-user').innerText = user;
+    }
+    
+    
+    if (document.getElementById('customer-name')) {
+        document.getElementById('customer-name').innerText = user;
+    }
+
+    
+    const boughtItem = localStorage.getItem('cartItemName');
+    if (boughtItem) {
+        localStorage.setItem('purchasedItem', boughtItem);
+        localStorage.setItem('purchaseDate', new Date().toLocaleDateString());
+        
+        
+        localStorage.removeItem('cartItemName');
+        localStorage.removeItem('cartItemPrice');
+    }
+
+    function handleLogout() {
+        localStorage.clear(); 
+        alert("Security session ended. You have been safely logged out.");
+        window.location.href = 'signin.html';
+    }
+</script>
+</body>
+</html>
