@@ -10,8 +10,8 @@ from fastapi.middleware.cors import CORSMiddleware
 # CONFIG
 # =========================
 
-PAYPAL_CLIENT_ID = os.getenv("PAYPAL_CLIENT_ID", "AeJJj331Jq18lKLOzU-3YZVmml362M_V7K2TykvKQeLDT9tql-RU5LXl0IOlPRWYhJLi2QoTwn5a3b_8")
-PAYPAL_SECRET = os.getenv("PAYPAL_SECRET", "EHt8VT62dXEkd2PQTwDh4693Vbwt6R-L5JNAzaKIUmotpabEPjY5aOL7t9DnjWiV4YNdK7Ga521hpL1g")
+PAYPAL_CLIENT_ID = os.getenv("PAYPAL_CLIENT_ID", "fake1")
+PAYPAL_SECRET = os.getenv("PAYPAL_SECRET", "fake2")
 PAYPAL_BASE = "https://api-m.sandbox.paypal.com"  # sandbox base URL
 
 #testing to see if the variables exist
