@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SaaS Detail - CyberMax Security</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; background: #F6F6F6; color: #333333; }
+        header { background: #333333; color: white; padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 24px; font-weight: bold; color: #990100; text-decoration: none; }
+        nav a, nav a:visited { color: white; text-decoration: none; margin-left: 20px; font-size: 14px; }
+        nav a:hover { color: #990100; }
+        .breadcrumb { padding: 10px 5%; background: #E8E8E8; font-size: 12px; border-bottom: 1px solid #ccc; }
+        .container { 
+            background: white; 
+            margin: 60px auto; 
+            padding: 60px; 
+            max-width: 900px; 
+            border-radius: 40px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05); 
+        }
+        h1 { font-size: 36px; margin-top: 0; }
+        .btn { background: #990100; color: white; padding: 14px 28px; border-radius: 10px; text-decoration: none; display: inline-block; font-weight: bold; border: none; cursor: pointer; transition: 0.3s; }
+        .btn:hover { background: #B90504; }
+        ul { line-height: 1.8; font-size: 16px; }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="index.html" class="logo">CyberMax Security</a>
+        <nav><a href="index.html">Home</a> | <a href="#" onclick="handleLogout()">Logout</a></nav>
+    </header>
+    <div class="breadcrumb">Home > <strong>Software as Service</strong></div>
+    <div class="container">
+        <h1 style="color: #990100;">CyberMax SaaS Suite</h1>
+        <p style="font-size: 18px;">A high-performance cloud security tool designed to monitor threats in real-time. Our Software as a Service model ensures you always have the latest protection without manual updates.</p>
+        <ul>
+            <li>Real time Malware Protection</li>
+            <li>Encrypted Cloud Backups</li>
+            <li>Multi Device Management</li>
+        </ul>
+        <h3 style="margin-top: 30px;">Price: $29.99/month</h3>
+        <button class="btn" onclick="addToCart('Software as Service', '$29.99')">Add to Cart</button>
+    </div>
+    <script>
+        function addToCart(name, price) {
+            localStorage.setItem('cartItemName', name);
+            localStorage.setItem('cartItemPrice', price);
+            window.location.href = 'cart.html';
+        }
+    </script>
+</body>
+</html>
