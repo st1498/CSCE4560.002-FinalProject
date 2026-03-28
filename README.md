@@ -4,31 +4,32 @@
 
 ```text
 CSCE4560.002-FinalProject/
-└─backend/
-  └─migrations
-  └─templates
-    ├─__init__.py
-    ├─admin.py
-    ├─apps.py
-    ├─forms.py
-    ├─models.py
-    ├─tests.py
-    ├─urls.py
-    ├─views.py
-└─cybermax/
-  ├─__init__.py
-  ├─asgi.py
-  ├─settings.py
-  ├─urls.py
-  ├─wsgi.py
+└─static
+    └─style.css
+└─templates
+    ├─cart.html
+    ├─change-password.html
+    ├─checkout.html
+    ├─confirmation.html
+    ├─forgot-password.html
+    ├─index.html
+    ├─product1.html
+    ├─product2.html
+    ├─profile.html
+    ├─signin.html
+    └─signup.html
 └─.gitignore
-└─README.md
+├─app.py
+├─models.py
+├─paypal_backend.py
+├─README.md
+└─requirements.txt
 ```
 
 ## How to run the project
 
 ```bash
-python manage.py runserver
+python3 app.py
 ```
 
 ## Screenshots of each templates being rendered
