@@ -49,61 +49,35 @@
         
         .login-link { margin-top: 20px; font-size: 14px; color: #333; }
         .login-link a { color: #990100; text-decoration: none; font-weight: bold; }
+        .flash-wrapper { margin-bottom: 12px; }
+        .flash { padding: 10px; border-radius: 8px; margin-bottom: 8px; font-size: 13px; }
+        .flash.error { background: #fde2e2; color: #a30808; border: 1px solid #faa; }
+        .flash.success { background: #e5f3e5; color: #1f6e3c; border: 1px solid #7dcf7d; }
     </style>
 </head>
 <body>
     <div class="box">
-        <a href="homepage.html" class="logo">CyberMax Security</a>
-        
-        <input type="text" id="fullname" placeholder="Full Name">
-        <input type="text" id="username-signup" placeholder="Username">
-        <input type="email" id="email-signup" placeholder="Email Address">
-        
-        <input type="password" id="pass-signup" placeholder="Password">
-        <div class="rules">Security Policy: Min 12 characters, including Uppercase, Lowercase, Number, and Symbol.</div>
-        
-        <input type="password" id="confirm-pass" placeholder="Confirm Password">
-        
-        <button class="btn" onclick="handleSignUp()">Create Account</button>
-
+        <a href="{{ url_for('index') }}" class="logo">CyberMax Security</a>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-wrapper">
+                {% for category, message in messages %}
+                    <div class="flash {{ category }}">{{ message }}</div>
+                {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+        <form action="{{ url_for('signup') }}" method="POST">
+            <input type="text" id="fullname" name="fullname" placeholder="Full Name" required>
+            <input type="text" id="username-signup" name="username-signup" placeholder="Username" required>
+            <input type="email" id="email-signup" name="email-signup" placeholder="Email Address" required>
+            <input type="password" id="pass-signup" name="pass-signup" placeholder="Password" required>
+            <div class="rules">Security Policy: Min 12 characters, including Uppercase, Lowercase, Number, and Symbol.</div>
+            <input type="password" id="confirm-pass" name="confirm-pass" placeholder="Confirm Password" required>
+            <button type="submit" class="btn">Create Account</button>
+        </form>
         <div class="login-link">
-            Already have an account? <a href="signin.html">Sign In</a>
+            Already have an account? <a href="{{ url_for('signin') }}">Sign In</a>
         </div>
-    </div>
-
-    <script>
-        function handleSignUp() {
-            const fullName = document.getElementById('fullname').value;
-            const userValue = document.getElementById('username-signup').value;
-            const emailValue = document.getElementById('email-signup').value;
-            const passValue = document.getElementById('pass-signup').value;
-            const confirmValue = document.getElementById('confirm-pass').value;
-
-            
-            if (!fullName || !userValue || !emailValue || !passValue) {
-                alert("Please fill in all security fields.");
-                return;
-            }
-
-            
-            if (passValue.length < 12) {
-                alert("Security Alert: Password must be at least 12 characters long.");
-                return;
-            }
-
-            if (passValue !== confirmValue) {
-                alert("Passwords do not match. Please verify your credentials.");
-                return;
-            }
-
-           
-            localStorage.setItem('username', userValue);
-            localStorage.setItem('userEmail', emailValue);
-            localStorage.setItem('userPassword', passValue); 
-
-            alert("Account created successfully! Welcome to CyberMax Security.");
-            window.location.href = 'signin.html';
-        }
-    </script>
 </body>
 </html>
