@@ -15,12 +15,15 @@ import os
 app = Flask(__name__)       # Flask app
 
 # Load the credentials from environment variable
-load_dotenv()
-the_host = os.getenv('HOST')
-the_user = os.getenv('USER')
-the_pass = os.getenv('PASSWORD')
-the_port = os.getenv('PORT')
-the_db = os.getenv('DB_NAME')
+
+basedir = os.path.abspath(os.path.dirname(__file__))
+load_dotenv(os.path.join(basedir, '.env'))
+
+the_host = os.getenv('HOST', 'localhost')
+the_user = os.getenv('USER', 'root')
+the_pass = os.getenv('PASSWORD', '')
+the_port = os.getenv('PORT', '3306')
+the_db = os.getenv('DB_NAME', 'your_database_name')
 
 
 # Create the engine that connects to the database
