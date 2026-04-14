@@ -1,7 +1,7 @@
-from flask import Flask, render_template, url_for, redirect, request, session, flash, jsonify
+from flask import Flask, render_template, url_for, redirect, request, session, flash
 from authlib.integrations.flask_client import OAuth
 import secrets
-#from argon2 import PasswordHasher, exceptions
+from argon2 import PasswordHasher, exceptions
 from flask_sqlalchemy import SQLAlchemy
 from dotenv import load_dotenv
 from sqlalchemy import select
@@ -18,14 +18,16 @@ from flask_cors import CORS
 app = Flask(__name__)
 CORS(app, resources={r"/api/*": {"origins": "*"}})
 
-# Load environment variables
-load_dotenv()
+# Load the credentials from environment variable
 
-the_host = os.getenv('HOST')
-the_user = os.getenv('USER')
-the_pass = os.getenv('PASSWORD')
-the_port = os.getenv('PORT')
-the_db = os.getenv('DB_NAME')
+basedir = os.path.abspath(os.path.dirname(__file__))
+load_dotenv(os.path.join(basedir, '.env'))
+
+the_host = os.getenv('HOST', 'localhost')
+the_user = os.getenv('USER', 'root')
+the_pass = os.getenv('PASSWORD', '')
+the_port = os.getenv('PORT', '3306')
+the_db = os.getenv('DB_NAME', 'your_database_name')
 
 #app.config['SQLALCHEMY_DATABASE_URI'] = f'mysql+pymysql://{the_user}:{the_pass}@{the_host}:{the_port}/{the_db}'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -47,6 +49,22 @@ PAYPAL_BASE = "https://api-m.sandbox.paypal.com"
 
 oauth = OAuth(app)
 
+google = oauth.register(
+    name='google',
+    client_id=os.getenv('GOOGLE_CLIENT_ID'),
+    client_secret=os.getenv('GOOGLE_CLIENT_SECRET'),
+    server_metadata_url='https://accounts.google.com/.well-known/openid-configuration',
+    client_kwargs={'scope': 'openid email profile'}
+)
+
+
+with app.app_context():
+    db.create_all()
+
+# --------------------------------------------------
+# OAUTH INITIALIZATION
+# --------------------------------------------------
+oauth = OAuth(app)
 google = oauth.register(
     name='google',
     client_id=os.getenv('GOOGLE_CLIENT_ID'),
@@ -148,70 +166,61 @@ def validate_password(user_id, password) -> bool:
     except exceptions.VerifyMismatchError:
         return False
 
-# --------------------------------------------------
-# GOOGLE LOGIN
-# --------------------------------------------------
-
 @app.route('/login/google')
 def google_login():
+    # Redirects the user to the Google login screen
     redirect_uri = url_for('google_authorize', _external=True)
     return google.authorize_redirect(redirect_uri)
 
 @app.route('/login/google/authorize')
 def google_authorize():
-
     token = google.authorize_access_token()
     user_info = token.get('userinfo')
-
+    
     if user_info:
-
         email = user_info.get('email')
         first_name = user_info.get('given_name', 'Google')
         last_name = user_info.get('family_name', 'User')
-
+        
+        # Check if user exists by email using your existing function
         user_id = get_customer_id(email)
-
+        
         if user_id:
-
-            customer = db.session.execute(
-                select(Customer).where(Customer.id == user_id)
-            ).scalar_one_or_none()
-
+            # User exists, grab their username and log them in
+            customer = db.session.execute(select(Customer).where(Customer.id == user_id)).scalar_one_or_none()
             session['username'] = customer.username
             flash('Signed in with Google successfully.', 'success')
             return redirect(url_for('profile', user_id=user_id))
-
         else:
-
+            # New user via Google: Auto-create an account
+            # Generate a secure random password since they use Google to log in
             random_pass = secrets.token_urlsafe(16)
             password_hash = hashed_passwd(random_pass)
-
+            
+            # Create a base username from their email prefix
             base_username = email.split('@')[0]
             username = base_username
-
+            
+            # Ensure the username is unique in your database
             counter = 1
             while validate_username(username):
                 username = f"{base_username}{counter}"
                 counter += 1
-
+                
+            # Use your existing add_customer function
             user_dets = (first_name, last_name, username, email, password_hash)
             add_customer(user_dets)
-
+            
+            # Log them in
             new_user_id = get_customer_id(email)
             session['username'] = username
-
             flash('Google account linked and signed in successfully.', 'success')
             return redirect(url_for('profile', user_id=new_user_id))
-
+            
     flash('Google login failed.', 'error')
     return redirect(url_for('signin'))
 
-# --------------------------------------------------
-# PASSWORD STRENGTH
-# --------------------------------------------------
-
-def is_strong_password(password: str) -> bool:
-
+def is_strong_password(password: str)->bool:
     if len(password) < 12:
         return False
 

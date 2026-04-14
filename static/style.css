@@ -30,3 +30,55 @@ code { background: #eee; padding: 4px 8px; border-radius: 5px; font-family: mono
 .flash { padding: 10px; border-radius: 8px; margin-bottom: 8px; font-size: 13px; }
 .flash.error { background: #fde2e2; color: #a30808; border: 1px solid #faa; }
 .flash.success { background: #e5f3e5; color: #1f6e3c; border: 1px solid #7dcf7d; }
+/* Google Button Styles */
+.google-auth-container {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.separator {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    color: #666;
+    margin-bottom: 15px;
+}
+
+.separator::before, .separator::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid #ccc;
+}
+
+.separator span {
+    padding: 0 10px;
+}
+
+.btn-google {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #ffffff;
+    color: #3c4043;
+    border: 1px solid #dadce0;
+    border-radius: 4px;
+    padding: 10px 15px;
+    text-decoration: none;
+    font-weight: 500;
+    font-family: 'Google Sans', Arial, sans-serif;
+    transition: background-color 0.2s, box-shadow 0.2s;
+    width: 100%; /* Adjust this if you don't want it full width */
+    max-width: 300px;
+    margin: 0 auto;
+}
+
+.btn-google:hover {
+    background-color: #f8f9fa;
+    box-shadow: 0 1px 2px 0 rgba(60,64,67,0.3), 0 1px 3px 1px rgba(60,64,67,0.15);
+}
+
+.google-icon {
+    width: 18px;
+    height: 18px;
+    margin-right: 10px;
+}
