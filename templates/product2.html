@@ -2,19 +2,19 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>SaaS Detail - CyberMax Security</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>SaaS Detail - Safelock Security</title>
+    <link rel="stylesheet" href="/static/style.css">
     <style>
     </style>
 </head>
 <body>
     <header>
-        <a href="{{ url_for('index') }}" class="logo">CyberMax Security</a>
-        <nav><a href="{{ url_for('index') }}">Home</a> | <a href="#" onclick="handleLogout()">Logout</a></nav>
+        <a href="index.html" class="logo">Safelock Security</a>
+        <nav><a href="index.html">Home</a> | <a href="#" onclick="handleLogout()">Logout</a></nav>
     </header>
     <div class="breadcrumb">Home > <strong>Software as Service</strong></div>
     <div class="container">
-        <h1 style="color: #990100;">CyberMax SaaS Suite</h1>
+        <h1 style="color: #990100;">Safelock SaaS Suite</h1>
         <p style="font-size: 18px;">A high-performance cloud security tool designed to monitor threats in real-time. Our Software as a Service model ensures you always have the latest protection without manual updates.</p>
         <ul>
             <li>Real time Malware Protection</li>
@@ -28,7 +28,13 @@
         function addToCart(name, price) {
             localStorage.setItem('cartItemName', name);
             localStorage.setItem('cartItemPrice', price);
-            window.location.href = "{{ url_for('cart') }}";
+            window.location.href = "cart.html";
+
+        }
+        function handleLogout() {
+            localStorage.clear(); 
+            alert("Security session ended. You have been safely logged out.");
+            window.location.href = 'signin.html';
         }
     </script>
 </body>

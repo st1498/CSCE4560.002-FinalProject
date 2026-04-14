@@ -2,15 +2,15 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>User Profile - CyberMax Security</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>User Profile - Safelock Security</title>
+    <link rel="stylesheet" href="/static/style.css">
     <style>
     </style>
 </head>
 <body>
     <header>
-        <a href="{{ url_for('index') }}" class="logo">CyberMax Security</a>
-        <nav><strong id="nav-user">User</strong> | <a href="{{ url_for('index') }}">Home</a> | <a href="#" onclick="handleLogout()">Logout</a></nav>
+        <a href="index.html" class="logo">Safelock Security</a>
+        <nav><strong id="nav-user">User</strong> | <a href="index.html">Home</a> | <a href="#" onclick="handleLogout()">Logout</a></nav>
     </header>
     <div class="breadcrumb">Home > <strong>User Profile</strong></div>
     
@@ -20,7 +20,7 @@
             <p><strong>Username:</strong> <span id="prof-username">Loading...</span></p>
             <p><strong>Email:</strong> <span id="prof-email">Loading...</span></p>
             <p><strong>Address:</strong> <span id="prof-address">Loading...</span></p>
-            <a href="{{ url_for('change_password') }}" class="btn" style="font-size: 13px; margin-top: 10px;">Change Password</a>
+            <a href="change-password.html" class="btn" style="font-size: 13px; margin-top: 10px;">Change Password</a>
         </div>
 
         <h2 style="margin-top: 40px;">Purchase History</h2>

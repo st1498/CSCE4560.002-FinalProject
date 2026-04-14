@@ -2,24 +2,16 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Sign Up - CyberMax Security</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>Sign Up - Safelock Security</title>
+    <link rel="stylesheet" href="/static/style.css">
     <style>
     </style>
 </head>
 <body>
     <div class="box">
-        <a href="{{ url_for('index') }}" class="logo">CyberMax Security</a>
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                <div class="flash-wrapper">
-                {% for category, message in messages %}
-                    <div class="flash {{ category }}">{{ message }}</div>
-                {% endfor %}
-                </div>
-            {% endif %}
-        {% endwith %}
-        <form action="{{ url_for('signup') }}" method="POST">
+        <a href="index.html" class="logo">Safelock Security</a>
+        
+        <form action="/signup" method="POST">
             <input type="text" id="fullname" name="fullname" placeholder="Full Name" required>
             <input type="text" id="username-signup" name="username-signup" placeholder="Username" required>
             <input type="email" id="email-signup" name="email-signup" placeholder="Email Address" required>
@@ -29,14 +21,15 @@
             <button type="submit" class="btn">Create Account</button>
         </form>
         <div class="google-auth-container">
-    <p class="separator"><span>OR</span></p>
-    <a href="{{ url_for('google_login') }}" class="btn-google">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google Logo" class="google-icon">
-            Continue with Google
+            <p class="separator"><span>OR</span></p>
+            <a href="/google_login" class="btn-google">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google Logo" class="google-icon">
+                Continue with Google
+            </a>
         </a>
     </div>
         <div class="login-link">
-            Already have an account? <a href="{{ url_for('signin') }}" style="color: #990100; font-weight: bold; text-decoration: none;">Sign In</a>
+            Already have an account? <a href="signin.html" style="color: #990100; font-weight: bold; text-decoration: none;">Sign In</a>
         </div>
 </body>
 </html>

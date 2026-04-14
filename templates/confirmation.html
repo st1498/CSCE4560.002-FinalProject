@@ -2,26 +2,26 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Confirmation - CyberMax Security</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>Confirmation - Safelock Security</title>
+    <link rel="stylesheet" href="/static/style.css">
     <style>
     </style>
 </head>
 <body>
     <header>
-        <a href="{{ url_for('index') }}" class="logo">CyberMax Security</a>
-        <nav><span id="display-user">User</span> | <a href="{{ url_for('index') }}">Home</a> | <a href="#" onclick="handleLogout()">Logout</a></nav>
+        <a href="index.html" class="logo">Safelock Security</a>
+        <nav><span id="display-user">User</span> | <a href="index.html">Home</a> | <a href="#" onclick="handleLogout()">Logout</a></nav>
     </header>
     
     <div class="container">
         <h1 style="color: #1f6e3c;">✔ Order Confirmed!</h1>
-        <p>Your information has been processed. Thank you for choosing CyberMax, <span id="customer-name">User</span>!</p>
+        <p>Your information has been processed. Thank you for choosing Safelock, <span id="customer-name">User</span>!</p>
         
         <div class="key-box">LICENSE-KEY: CM-882-QK9-31</div>
         
         <a href="#" class="btn">Download Product</a>
         <br>
-        <a href="{{ url_for('profile') }}" class="profile-link">View Keys in Profile</a>
+        <a href="profile.html" class="profile-link">View Keys in Profile</a>
     </div>
 
     <script>

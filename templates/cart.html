@@ -2,17 +2,17 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Cart - CyberMax Security</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>Cart - Safelock Security</title>
+    <link rel="stylesheet" href="/static/style.css">
     <style>
     </style>
 </head>
 <body>
     <header>
-        <a href="{{ url_for('index') }}" class="logo">CyberMax Security</a>
+        <a href="index.html" class="logo">Safelock Security</a>
         <nav>
             <span id="display-user">User</span> | 
-            <a href="{{ url_for('index') }}">Home</a> | 
+            <a href="index.html">Home</a> |
             <a href="#" onclick="handleLogout()">Logout</a>
         </nav>
     </header>
@@ -32,7 +32,7 @@
         </table>
 
         <div class="button-row">
-            <a href="{{ url_for('checkout') }}" class="btn">Proceed to Checkout</a>
+            <a href="checkout.html" class="btn">Proceed to Checkout</a>
         </div>
     </div>
 

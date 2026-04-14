@@ -2,15 +2,19 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Checkout - CyberMax Security</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>Checkout - Safelock Security</title>
+    <link rel="stylesheet" href="/static/style.css">
     <style>
     </style>
 </head>
 <body>
     <header>
-        <a href="{{ url_for('index') }}" class="logo">CyberMax Security</a>
-        <nav><span id="display-user">User</span> | <a href="{{ url_for('index') }}">Home</a> | <a href="#" onclick="handleLogout()">Logout</a></nav>
+        <a href="index.html" class="logo">Safelock Security</a>
+        <nav>
+            <span id="display-user">User</span> | 
+            <a href="index.html">Home</a> | 
+            <a href="#" onclick="handleLogout()">Logout</a>
+        </nav>
     </header>
     <div class="breadcrumb">Home > Cart > <strong>Checkout</strong></div>
     

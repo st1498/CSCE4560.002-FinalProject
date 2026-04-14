@@ -2,19 +2,19 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>VPN Detail - CyberMax Security</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>VPN Detail - Safelock Security</title>
+    <link rel="stylesheet" href="/static/style.css">
     <style>
     </style>
 </head>
 <body>
     <header>
-        <a href="{{ url_for('index') }}" class="logo">CyberMax Security</a>
-        <nav><a href="{{ url_for('index') }}">Home</a> | <a href="#" onclick="handleLogout()">Logout</a></nav>
+        <a href="index.html" class="logo">Safelock Security</a>
+        <nav><a href="index.html">Home</a> | <a href="#" onclick="handleLogout()">Logout</a></nav>
     </header>
     <div class="breadcrumb">Home > <strong>VPN Service</strong></div>
     <div class="container">
-        <h1 style="color: #990100;">CyberMax VPN</h1>
+        <h1 style="color: #990100;">Safelock VPN</h1>
         <p style="font-size: 18px;">Our Virtual Private Network provides a secure, encrypted tunnel for your data, protecting your online identity by hiding your IP address and allowing you to use public Wi-Fi hotspots safely.</p>
         <ul>
             <li>No Logs Policy</li>
@@ -28,7 +28,12 @@
         function addToCart(name, price) {
             localStorage.setItem('cartItemName', name);
             localStorage.setItem('cartItemPrice', price);
-            window.location.href = "{{ url_for('cart') }}";
+            window.location.href = "cart.html";
+        }
+        function handleLogout() {
+            localStorage.clear(); 
+            alert("Security session ended. You have been safely logged out.");
+            window.location.href = 'signin.html';
         }
     </script>
 </body>
