@@ -32,6 +32,10 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.secret_key = os.getenv('SECRET_KEY')
 db = SQLAlchemy(app)
 
+
+with app.app_context():
+    db.create_all()
+
 # --------------------------------------------------
 # OAUTH INITIALIZATION
 # --------------------------------------------------
