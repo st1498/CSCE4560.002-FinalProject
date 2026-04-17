@@ -3,38 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <title>Sign In - Safelock Security</title>
-    <link rel="stylesheet" href="/static/style.css">
-    <style>
-    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
     <div class="box">
-        <a href="index.html" class="logo">Safelock Security</a>
-        
-        <form action="/signin" method="POST">
+        <a href="{{ url_for('index') }}" class="logo">Safelock Security</a>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="alert alert-{{ category }}" style="color: #990100; font-size: 14px; margin-bottom: 10px;">
+                {{ message }}
+              </div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        <form action="{{ url_for('signin') }}" method="POST">
             <input type="text" id="username-field" name="username-field" placeholder="Username or Email" required>
             <input type="password" id="password-field" name="password-field" placeholder="Password" required>
             <button type="submit" class="btn">Sign In</button>
         </form>
+
         <div class="links">
-            <a href="forgot-password.html" style="color: #990100; text-decoration: none;">Forgot Password?</a><br><br>
-            Don't have an account? <a href="signup.html" style="color: #990100; font-weight: bold; text-decoration: none;">Sign Up</a>
+            <a href="{{ url_for('forgot_password') }}" style="color: #990100; text-decoration: none;">Forgot Password?</a><br><br>
+            Don't have an account? <a href="{{ url_for('signup') }}" style="color: #990100; font-weight: bold; text-decoration: none;">Sign Up</a>
         </div>
     </div>
+
     <div class="google-auth-container">
         <p class="separator"><span>OR</span></p>
-        <a href="/google_login" class="btn-google">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google Logo" class="google-icon">
+        <a href="{{ url_for('google_login') }}" class="btn-google" style="text-decoration: none; display: flex; align-items: center; justify-content: center;">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google Logo" class="google-icon" style="width: 20px; margin-right: 10px;">
             Continue with Google
         </a>
-        </a>
     </div>
-    <script>
-        function handleLogout() {
-            localStorage.clear();
-            alert("Security session ended. You have been safely logged out.");
-            window.location.href = "signin.html";
-        }
-    </script>
 </body>
 </html>

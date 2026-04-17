@@ -3,30 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <title>Checkout - Safelock Security</title>
-    <link rel="stylesheet" href="/static/style.css">
-    <style>
-    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
     <header>
-        <a href="index.html" class="logo">Safelock Security</a>
+        <a href="{{ url_for('index') }}" class="logo">Safelock Security</a>
         <nav>
-            <span id="display-user">User</span> | 
-            <a href="index.html">Home</a> | 
-            <a href="#" onclick="handleLogout()">Logout</a>
+            <span>{{ session.get('username', 'User') }}</span> |
+            <a href="{{ url_for('index') }}">Home</a> |
+            <a href="{{ url_for('signin') }}">Logout</a>
         </nav>
     </header>
-    <div class="breadcrumb">Home > Cart > <strong>Checkout</strong></div>
-    
+
+    <div class="breadcrumb">
+        <a href="{{ url_for('index') }}">Home</a> >
+        <a href="{{ url_for('cart') }}">Cart</a> >
+        <strong>Checkout</strong>
+    </div>
+
     <div class="container">
         <h2>Checkout Information</h2>
-        
+
         <h3>Personal Details</h3>
         <div class="flex">
             <input type="text" id="fname" placeholder="First Name">
             <input type="text" id="lname" placeholder="Last Name">
         </div>
-        
+
         <h3>Billing Address</h3>
         <input type="text" id="street" placeholder="Street Address">
         <div class="flex">
@@ -34,44 +37,37 @@
             <input type="text" id="state" placeholder="State">
             <input type="text" id="zip" placeholder="Zip Code">
         </div>
-        
+
         <h3>Payment Method</h3>
-        <input type="text" placeholder="Credit Card Number (Form Only - Not Stored)">
+        <p style="font-size: 0.8em; color: #666;">(Demonstration Only)</p>
+        <input type="text" placeholder="Credit Card Number">
         <div class="flex">
             <input type="text" placeholder="MM/YY" style="flex: 2;">
             <input type="text" placeholder="CVV" style="flex: 1;">
         </div>
-        
+
         <button class="btn" onclick="processPayment()">Process Payment</button>
     </div>
 
    <script>
-    const user = localStorage.getItem('username');
+        function processPayment() {
+            const street = document.getElementById('street').value;
+            const city = document.getElementById('city').value;
+            const state = document.getElementById('state').value;
+            const zip = document.getElementById('zip').value;
 
-    if (user && document.getElementById('display-user')) {
-        document.getElementById('display-user').innerText = user;
-    }
+            if (street && city && state && zip) {
+                const fullAddress = `${street}, ${city}, ${state} ${zip}`;
+                localStorage.setItem('userAddress', fullAddress);
 
-    function processPayment() {
-        const street = document.getElementById('street').value;
-        const city = document.getElementById('city').value;
-        const state = document.getElementById('state').value;
-        const zip = document.getElementById('zip').value;
-
-        if (street && city && state && zip) {
-            const fullAddress = `${street}, ${city}, ${state} ${zip}`;
-            localStorage.setItem('userAddress', fullAddress);
-            window.location.href = 'confirmation.html';
-        } else {
-            alert("Please complete the billing address to secure your order.");
+                // FIX 3: Point to a confirmation route
+                // Make sure you have @app.route('/confirmation') in your app.py!
+                window.location.href = "{{ url_for('index') }}";
+                alert("Payment Processed! Redirecting to Home.");
+            } else {
+                alert("Please complete the billing address to secure your order.");
+            }
         }
-    }
-   
-    function handleLogout() {
-        localStorage.clear(); 
-        alert("Security session ended. You have been safely logged out.");
-        window.location.href = 'signin.html';
-    }
 </script>
 </body>
 </html>

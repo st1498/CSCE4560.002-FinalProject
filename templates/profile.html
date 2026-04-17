@@ -3,68 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <title>User Profile - Safelock Security</title>
-    <link rel="stylesheet" href="/static/style.css">
-    <style>
-    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
     <header>
-        <a href="index.html" class="logo">Safelock Security</a>
-        <nav><strong id="nav-user">User</strong> | <a href="index.html">Home</a> | <a href="#" onclick="handleLogout()">Logout</a></nav>
+        <a href="{{ url_for('index') }}" class="logo">Safelock Security</a>
+        <nav>
+            <strong id="nav-user">{{ user.username }}</strong> |
+            <a href="{{ url_for('index') }}">Home</a> |
+            <a href="{{ url_for('logout') }}">Logout</a>
+        </nav>
     </header>
-    <div class="breadcrumb">Home > <strong>User Profile</strong></div>
-    
+    <div class="breadcrumb">
+        <a href="{{ url_for('index') }}">Home</a> > <strong>User Profile</strong>
+    </div>
+
     <div class="container">
         <h2>Account Settings</h2>
         <div class="profile-section">
-            <p><strong>Username:</strong> <span id="prof-username">Loading...</span></p>
-            <p><strong>Email:</strong> <span id="prof-email">Loading...</span></p>
-            <p><strong>Address:</strong> <span id="prof-address">Loading...</span></p>
-            <a href="change-password.html" class="btn" style="font-size: 13px; margin-top: 10px;">Change Password</a>
+            <p><strong>Username:</strong> <span>{{ user.username }}</span></p>
+            <p><strong>Email:</strong> <span>{{ user.email }}</span></p>
+            <p><strong>First Name:</strong> <span>{{ user.first_name }}</span></p>
+            <p><strong>Last Name:</strong> <span>{{ user.last_name }}</span></p>
+            <p><strong>Member Since:</strong> <span>{{ user.date_registered.strftime('%B %d, %Y') }}</span></p>
+
+            <a href="{{ url_for('change_password') }}" class="btn" style="font-size: 13px; margin-top: 10px; display: inline-block; text-decoration: none;">Change Password</a>
         </div>
 
-        <h2 style="margin-top: 40px;">Purchase History</h2>
+        <h2 style="margin-top: 40px;">Active Subscriptions</h2>
         <table>
-            <thead><tr><th>Product</th><th>Date</th><th>License Key</th></tr></thead>
-            <tbody id="purchase-history"></tbody>
+            <thead>
+                <tr>
+                    <th>License Key</th>
+                    <th>Start Date</th>
+                    <th>End Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for sub in subscriptions %}
+                <tr>
+                    <td><code>{{ sub.license_key }}</code></td>
+                    <td>{{ sub.start_date.strftime('%Y-%m-%d') }}</td>
+                    <td>{{ sub.end_date.strftime('%Y-%m-%d') if sub.end_date else 'Lifetime' }}</td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="3" style="text-align:center; padding: 30px;">No active subscriptions found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
         </table>
     </div>
-
-    <script>
-        const storedUser = localStorage.getItem('username') || "User";
-        const storedEmail = localStorage.getItem('userEmail') || "Not Provided";
-        const storedAddress = localStorage.getItem('userAddress') || "Not Provided";
-
-        document.getElementById('nav-user').innerText = storedUser;
-        document.getElementById('prof-username').innerText = storedUser;
-        document.getElementById('prof-email').innerText = storedEmail;
-        document.getElementById('prof-address').innerText = storedAddress;
-
-        const item = localStorage.getItem('purchasedItem');
-        const date = localStorage.getItem('purchaseDate');
-        const historyTable = document.getElementById('purchase-history');
-
-        if (item) {
-            historyTable.innerHTML = `
-                <tr>
-                    <td>CyberMax ${item}</td>
-                    <td>${date}</td>
-                    <td><code>CMX-${Math.floor(Math.random() * 9000 + 1000)}-KEY</code></td>
-                </tr>
-            `;
-        } else {
-            historyTable.innerHTML = `<tr><td colspan="3" style="text-align:center; padding: 30px;">No products purchased yet.</td></tr>`;
-        }
-        const user = localStorage.getItem('username');
-        if (user && document.getElementById('display-user')) {
-            document.getElementById('display-user').innerText = user;
-        }
-
-        function handleLogout() {
-            localStorage.clear(); 
-            alert("Security session ended. You have been safely logged out.");
-            window.location.href = 'signin.html';
-        }
-    </script>
 </body>
 </html>

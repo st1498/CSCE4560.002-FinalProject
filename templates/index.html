@@ -3,22 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <title>Home - Safelock Security</title>
-    <link rel="stylesheet" href="/static/style.css">
-    <style>
-    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
     <header>
-        <a href="index.html" class="logo">Safelock Security</a>
+        <a href="{{ url_for('index') }}" class="logo">Safelock Security</a>
         <nav>
-            <span id="display-user">User</span> | 
-            <a href="profile.html">Profile</a> | 
-            <a href="cart.html">Cart</a> | 
-            <a href="#" onclick="handleLogout()">Logout</a>
+            {% if session.get('username') %}
+                <span>{{ session['username'] }}</span> |
+                <a href="{{ url_for('profile', user_id=session.get('user_id')) }}">Profile</a> |
+                <a href="{{ url_for('cart') }}">Cart</a> |
+                <a href="{{ url_for('logout') }}">Logout</a>
+            {% else %}
+                <a href="{{ url_for('signin') }}">Sign In</a> |
+                <a href="{{ url_for('signup') }}">Sign Up</a>
+            {% endif %}
         </nav>
     </header>
+
     <div class="breadcrumb"><strong>Home Page</strong></div>
-    
+
     <div class="hero">
         <h1>Safelock Security</h1>
         <p>Advanced Protection & Encrypted Solutions</p>
@@ -29,36 +33,25 @@
             <h2>VPN</h2>
             <p>Secure, encrypted tunnel for your internet traffic. Stay anonymous online.</p>
             <p style="font-size: 24px; font-weight: bold; color: #333;">$9.99/mo</p>
-            <a href="product1.html" class="btn btn-dark">View More</a>
+            <a href="{{ url_for('product_page', pk='1') }}" class="btn btn-dark">View More</a>
             <button class="btn" onclick="addToCart('VPN', '$9.99')">Add to Cart</button>
         </div>
-        
+
         <div class="product-card">
             <h2>Software as Service</h2>
             <p>Cloud-based antivirus and threat detection for real-time monitoring.</p>
             <p style="font-size: 24px; font-weight: bold; color: #333;">$29.99/mo</p>
-            <a href="product2.html" class="btn btn-dark">View More</a>
+            <a href="{{ url_for('product_page', pk='2') }}" class="btn btn-dark">View More</a>
             <button class="btn" onclick="addToCart('Software as Service', '$29.99')">Add to Cart</button>
         </div>
     </div>
 
     <script>
-       
-        const user = localStorage.getItem('username');
-        if (user && document.getElementById('display-user')) {
-            document.getElementById('display-user').innerText = user;
-        }
-
         function addToCart(name, price) {
             localStorage.setItem('cartItemName', name);
             localStorage.setItem('cartItemPrice', price);
-            window.location.href = 'cart.html';
-        }
-
-        function handleLogout() {
-            localStorage.clear(); 
-            alert("Security session ended. You have been safely logged out.");
-            window.location.href = 'signin.html';
+            // FIX: Point to the Flask cart route
+            window.location.href = "{{ url_for('cart') }}";
         }
     </script>
 </body>

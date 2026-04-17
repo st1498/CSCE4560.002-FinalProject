@@ -3,57 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <title>Confirmation - Safelock Security</title>
-    <link rel="stylesheet" href="/static/style.css">
-    <style>
-    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
     <header>
-        <a href="index.html" class="logo">Safelock Security</a>
-        <nav><span id="display-user">User</span> | <a href="index.html">Home</a> | <a href="#" onclick="handleLogout()">Logout</a></nav>
+        <a href="{{ url_for('index') }}" class="logo">Safelock Security</a>
+        <nav>
+            <span>{{ session.get('username', 'User') }}</span> |
+            <a href="{{ url_for('index') }}">Home</a> |
+            <a href="{{ url_for('signin') }}">Logout</a>
+        </nav>
     </header>
-    
+
     <div class="container">
         <h1 style="color: #1f6e3c;">✔ Order Confirmed!</h1>
-        <p>Your information has been processed. Thank you for choosing Safelock, <span id="customer-name">User</span>!</p>
-        
+        <p>Your information has been processed. Thank you for choosing Safelock, <strong>{{ session.get('username', 'Valued Customer') }}</strong>!</p>
+
         <div class="key-box">LICENSE-KEY: CM-882-QK9-31</div>
-        
+
         <a href="#" class="btn">Download Product</a>
         <br>
-        <a href="profile.html" class="profile-link">View Keys in Profile</a>
+        <a href="{{ url_for('profile', user_id=session.get('user_id')) }}" class="profile-link">View Keys in Profile</a>
     </div>
 
     <script>
-   
-    const user = localStorage.getItem('username') || "User";
-    
-    
-    if (document.getElementById('display-user')) {
-        document.getElementById('display-user').innerText = user;
-    }
-    
-    
-    if (document.getElementById('customer-name')) {
-        document.getElementById('customer-name').innerText = user;
-    }
+        const boughtItem = localStorage.getItem('cartItemName');
+        if (boughtItem) {
+            localStorage.setItem('purchasedItem', boughtItem);
+            localStorage.setItem('purchaseDate', new Date().toLocaleDateString());
 
-    
-    const boughtItem = localStorage.getItem('cartItemName');
-    if (boughtItem) {
-        localStorage.setItem('purchasedItem', boughtItem);
-        localStorage.setItem('purchaseDate', new Date().toLocaleDateString());
-        
-        
-        localStorage.removeItem('cartItemName');
-        localStorage.removeItem('cartItemPrice');
-    }
-
-    function handleLogout() {
-        localStorage.clear(); 
-        alert("Security session ended. You have been safely logged out.");
-        window.location.href = 'signin.html';
-    }
-</script>
+            // Clear cart from storage so they don't buy it twice by accident
+            localStorage.removeItem('cartItemName');
+            localStorage.removeItem('cartItemPrice');
+        }
+    </script>
 </body>
 </html>

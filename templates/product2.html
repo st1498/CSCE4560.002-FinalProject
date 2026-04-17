@@ -3,16 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <title>SaaS Detail - Safelock Security</title>
-    <link rel="stylesheet" href="/static/style.css">
-    <style>
-    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
     <header>
-        <a href="index.html" class="logo">Safelock Security</a>
-        <nav><a href="index.html">Home</a> | <a href="#" onclick="handleLogout()">Logout</a></nav>
+        <a href="{{ url_for('index') }}" class="logo">Safelock Security</a>
+        <nav>
+            <a href="{{ url_for('index') }}">Home</a> |
+            {% if session.get('username') %}
+                <a href="{{ url_for('logout') }}">Logout</a>
+            {% else %}
+                <a href="{{ url_for('signin') }}">Sign In</a>
+            {% endif %}
+        </nav>
     </header>
-    <div class="breadcrumb">Home > <strong>Software as Service</strong></div>
+
+    <div class="breadcrumb">
+        <a href="{{ url_for('index') }}">Home</a> > <strong>Software as Service</strong>
+    </div>
+
     <div class="container">
         <h1 style="color: #990100;">Safelock SaaS Suite</h1>
         <p style="font-size: 18px;">A high-performance cloud security tool designed to monitor threats in real-time. Our Software as a Service model ensures you always have the latest protection without manual updates.</p>
@@ -24,17 +33,13 @@
         <h3 style="margin-top: 30px;">Price: $29.99/month</h3>
         <button class="btn" onclick="addToCart('Software as Service', '$29.99')">Add to Cart</button>
     </div>
+
     <script>
         function addToCart(name, price) {
             localStorage.setItem('cartItemName', name);
             localStorage.setItem('cartItemPrice', price);
-            window.location.href = "cart.html";
-
-        }
-        function handleLogout() {
-            localStorage.clear(); 
-            alert("Security session ended. You have been safely logged out.");
-            window.location.href = 'signin.html';
+            // FIX 3: Point to Flask cart route
+            window.location.href = "{{ url_for('cart') }}";
         }
     </script>
 </body>

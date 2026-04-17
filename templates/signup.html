@@ -3,33 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <title>Sign Up - Safelock Security</title>
-    <link rel="stylesheet" href="/static/style.css">
-    <style>
-    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
     <div class="box">
-        <a href="index.html" class="logo">Safelock Security</a>
-        
-        <form action="/signup" method="POST">
+        <a href="{{ url_for('index') }}" class="logo">Safelock Security</a>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="alert alert-{{ category }}" style="color: #990100; font-size: 13px; margin-bottom: 10px; text-align: center;">
+                {{ message }}
+              </div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        <form action="{{ url_for('signup') }}" method="POST">
             <input type="text" id="fullname" name="fullname" placeholder="Full Name" required>
             <input type="text" id="username-signup" name="username-signup" placeholder="Username" required>
             <input type="email" id="email-signup" name="email-signup" placeholder="Email Address" required>
             <input type="password" id="pass-signup" name="pass-signup" placeholder="Password" required>
-            <div class="rules">Security Policy: Min 12 characters, including Uppercase, Lowercase, Number, and Symbol.</div>
+
+            <div class="rules" style="font-size: 11px; color: #666; margin-bottom: 10px;">
+                Security Policy: Min 12 characters, including Uppercase, Lowercase, Number, and Symbol.
+            </div>
+
             <input type="password" id="confirm-pass" name="confirm-pass" placeholder="Confirm Password" required>
             <button type="submit" class="btn">Create Account</button>
         </form>
+
         <div class="google-auth-container">
             <p class="separator"><span>OR</span></p>
-            <a href="/google_login" class="btn-google">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google Logo" class="google-icon">
+            <a href="{{ url_for('google_login') }}" class="btn-google" style="text-decoration: none; display: flex; align-items: center; justify-content: center;">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google Logo" class="google-icon" style="width: 18px; margin-right: 10px;">
                 Continue with Google
             </a>
-        </a>
-    </div>
-        <div class="login-link">
-            Already have an account? <a href="signin.html" style="color: #990100; font-weight: bold; text-decoration: none;">Sign In</a>
         </div>
+
+        <div class="login-link" style="margin-top: 20px; text-align: center; font-size: 14px;">
+            Already have an account? <a href="{{ url_for('signin') }}" style="color: #990100; font-weight: bold; text-decoration: none;">Sign In</a>
+        </div>
+    </div>
 </body>
 </html>
