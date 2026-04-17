@@ -20,7 +20,7 @@ CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 # Load the credentials from environment variable
 
-basedir = os.path.abspath(os.path.dirname(__file__))
+basedir = os.path.abspath(os.path.dirname(__name__))
 load_dotenv(os.path.join(basedir, '.env'))
 
 the_host = os.getenv('HOST', 'localhost')
