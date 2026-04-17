@@ -194,3 +194,45 @@ python3 app.py
 ### Sign Up page
 
 ![Sign Up](./Screenshots/signup%20page.png)
+
+## VI. Screenshots after new implementations
+
+### Home page
+
+![Home page](./Screenshots/2_Home%20page.png)
+
+### Product 1 page
+
+![Product 1](./Screenshots/2_Product%201%20page.png)
+
+### Product 2 page
+
+![Product 2](./Screenshots/2_Product%202%20page.png)
+
+### Signin page
+
+#### 1. Using the form
+
+![Sign in](./Screenshots/2_Signin%20page.png)
+
+#### 2. Using Google OAuth
+
+![Google OAuth](./Screenshots/2_Google%20signin%20page.png)
+
+### Sign up attempt
+
+#### 1. Filling the form and using "password" for the new password
+
+![Sign up form](./Screenshots/2_Signup%20form.png)
+
+#### 2. Failure due to short password
+
+![Failed signup](./Screenshots/2_Signiup%20failed%20due%20to%20short%20password.png)
+
+### SaS in the cart
+
+![Sas in cart](./Screenshots/2_Cart.png)
+
+### Checkout page
+
+![Chechout page](./Screenshots/2_Chechout.png)
