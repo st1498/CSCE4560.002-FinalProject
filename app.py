@@ -5,7 +5,7 @@ from argon2 import PasswordHasher, exceptions
 from flask_sqlalchemy import SQLAlchemy
 from dotenv import load_dotenv
 from sqlalchemy import select
-from models import Customer
+from models import Base, Customer
 import os
 import base64
 import requests
