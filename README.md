@@ -81,7 +81,7 @@ mysql -u root -p cyber_max -p -e "CREATE DATABASE safelock_sec;"
 - Verify that the database exists
 
 ```bash
-mysql -u root -p cyber_max -p -e "SHOW DATABASES;"
+mysql -u root -p -e "SHOW DATABASES;"
 ```
 
 ```text
