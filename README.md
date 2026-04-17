@@ -1,6 +1,6 @@
 # Cybermax E-Commerce Project
 
-## Project Structure
+## I. Project Structure
 
 ```text
 CSCE4560.002-FinalProject/
@@ -26,23 +26,11 @@ CSCE4560.002-FinalProject/
 └─requirements.txt
 ```
 
-## How to setup up MySQL server
+## II. How to setup up MySQL server
 
 ### Download and install MySQL
 
-- Download the APT Repository
-
-```bash
-wget https://dev.mysql.com/get/mysql-apt-config_0.8.36-1_all.deb
-```
-
-- Install the MySQL Server
-
-```bash
-sudo apt install mysql-server -y
-```
-
-- If the above command fails, try installing MariaDB instead
+- Install MariaDB
 
 ```bash
 sudo apt-get install mariadb-server
@@ -51,106 +39,121 @@ sudo apt-get install mariadb-server
 - Check that the server is running
 
 ```bash
-sudo systemctl status mysq
+sudo systemctl status mysql
 ```
 
-### Add a new user and password
+### Create a new user and a database
 
-- Connect to MySQL
+#### 1. Log in to MySQL as root
 
 ```bash
-mysql -u root -p
+sudo mysql
 ```
 
-- In the MySQL console, set a new user and password and exit the console.
-- In this example, we create user 'root' with password 'root'.
+#### 2. Create a new database (e.g., testdb
 
 ```
-> ALTER USER root@localhost IDENTIFIED BY 'root';
-> QUIT;
+MariaDB [(none)]> CREATE DATABASE testdb;
 ```
 
-### Create a new database
+#### 3. Create a new user with a password (e.g., user=test, password=test)
 
-- Create a new database called "safelock_sec"
+```
+MariaDB [(none)]> CREATE USER 'test'@'localhost' IDENTIFIED VIA mysql_native_password USING PASSWORD('test');
+```
+
+#### 4. Grant privileges
+
+```
+MariaDB [(none)]> GRANT ALL PRIVILEGES ON testdb.* TO 'test'@'localhost';
+```
+
+#### 5. Apply changes and exit
+
+```
+FLUSH PRIVILEGES;
+EXIT;
+```
+
+#### 6. Verify the new user
+
+- Use the new user's password when prompted for a password ('test' in this case)
 
 ```bash
-mysql -u root -p cyber_max -p -e "CREATE DATABASE safelock_sec;"
+mysql -u test -p
 ```
 
-- Verify that the database exists
+- Check that the database exists
 
-```bash
-mysql -u root -p -e "SHOW DATABASES;"
 ```
+MariaDB [(none)]>SHOW DATABASES;
+```
+
+- Example output
 
 ```text
-# Example output
-
 +--------------------+
 | Database           |
 +--------------------+
 | information_schema |
-| mysql              |
-| performance_schema |
-| safelock_sec       |
-| sys                |
+| testdb             |
 +--------------------+
 ```
 
-- Create the tables for the new database
+- Exit the console
 
-```bash
-mysql -u root -p safelock_sec < create_tables.sql
+```
+MariaDB [(none)]>EXIT
 ```
 
-- Verify that the tables have been successfully created
+##### 7. CREATE THE TABLES FOR THE DATABASE
+
+- Create the tables for testdb from the terminal
 
 ```bash
-mysql -u root -p safelock_secx -p -e "SHOW TABLES;"
+mysql -u test -p testdb < create_tables.sql
 ```
+
+- Verify that the tables were successfully created
+
+```bash
+mysql -u test -p testDB -e "SHOW TABLES"
+```
+
+## III. Format for the .env file
+
+### 1. Generate a random secret key for MySQL using Python's secrets library
+
+```bash
+python3 -c "import secrets; print(secrets.token_bytes(32).hex())"
+```
+
+- Example output
 
 ```text
-# Example output
 
-+------------------------+
-| Tables_in_safelock_sec |
-+------------------------+
-| Customers              |
-| Orders                 |
-| Products               |
-| Subscriptions          |
-+------------------------+
 ```
 
-## Format for the .env file
+### 2. Create the .env file and add the credentials
 
 ```text
 HOST="localhost"
-USER="root"
-PASSWORD="root"
+USER="test"
+PASSWORD="test"
 PORT="3306"
-DB_NAME=""
-SECRET_KEY=""
+DB_NAME="testdb"
+SECRET_KEY="07140666f2a8ab96075b01c9780e1ede7508c08184fe92af4394fb724615c6b3"
 PAYPAL_CLIENT_ID=""
 PAYPAL_SECRET=""
 GOOGLE_CLIENT_ID=""
 GOOGLE_CLIENT_SECRET=""
 ```
 
-## How to run the project
+## IV. How to run the project
 
-### Generate a random secret key for MySQL using Python's secrets library
 
-```bash
-python3 -c "import secrets; print(secrets.token_bytes(32).hex())"
-```
 
-```text
-# Example output
 
-07140666f2a8ab96075b01c9780e1ede7508c08184fe92af4394fb724615c6b3
-```
 
 Open `.env` and assign the generated 32-byte key to the SECRET_KEY variable.
 
@@ -162,7 +165,7 @@ Open `.env` and assign the generated 32-byte key to the SECRET_KEY variable.
 python3 app.py
 ```
 
-## Screenshots of each templates being rendered
+## V. Screenshots of each templates being rendered
 
 ### Home page
 
