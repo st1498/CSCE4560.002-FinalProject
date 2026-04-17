@@ -123,7 +123,40 @@ mysql -u root -p safelock_secx -p -e "SHOW TABLES;"
 +------------------------+
 ```
 
+## Format for the .env file
+
+```text
+HOST="localhost"
+USER="root"
+PASSWORD="root"
+PORT="3306"
+DB_NAME=""
+SECRET_KEY=""
+PAYPAL_CLIENT_ID=""
+PAYPAL_SECRET=""
+GOOGLE_CLIENT_ID=""
+GOOGLE_CLIENT_SECRET=""
+```
+
 ## How to run the project
+
+### Generate a random secret key for MySQL using Python's secrets library
+
+```bash
+python3 -c "import secrets; print(secrets.token_bytes(32).hex())"
+```
+
+```text
+# Example output
+
+07140666f2a8ab96075b01c9780e1ede7508c08184fe92af4394fb724615c6b3
+```
+
+Open `.env` and assign the generated 32-byte key to the SECRET_KEY variable.
+
+```text```
+
+### Start the Flask app
 
 ```bash
 python3 app.py
