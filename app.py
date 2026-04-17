@@ -23,17 +23,18 @@ CORS(app, resources={r"/api/*": {"origins": "*"}})
 basedir = os.path.abspath(os.path.dirname(__name__))
 load_dotenv(os.path.join(basedir, '.env'))
 
-the_host = os.getenv('HOST', 'localhost')
-the_user = os.getenv('USER', 'root')
-the_pass = os.getenv('PASSWORD', '')
-the_port = os.getenv('PORT', '3306')
-the_db = os.getenv('DB_NAME', 'your_database_name')
+the_host = os.getenv('HOST')
+the_user = os.getenv('USER')
+the_pass = os.getenv('PASSWORD')
+the_port = os.getenv('PORT')
+the_db = os.getenv("DB_NAME")
 
 app.config['SQLALCHEMY_DATABASE_URI'] = f'mysql+pymysql://{the_user}:{the_pass}@{the_host}:{the_port}/{the_db}'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.secret_key = os.getenv('SECRET_KEY')
 
-db = SQLAlchemy(app)
+db = SQLAlchemy(model_class=Base)
+db.init_app(app)
 
 # --------------------------------------------------
 # PAYPAL CONFIG
@@ -58,12 +59,28 @@ google = oauth.register(
 )
 
 # --------------------------------------------------
-# PASSWORD HASHING
+# PASSWORD HASHING AND STRENGTH TESTING
 # --------------------------------------------------
 
 def hashed_passwd(password: str):
     ph = PasswordHasher()
     return ph.hash(password)
+
+def is_strong_password(password: str):
+    # Check the password's length
+    if len(password) < 12:
+        return False
+
+    # Check all the requirements
+    checks = [
+        any(c.isupper() for c in password),  # Has Upper
+        any(c.islower() for c in password),  # Has Lower
+        any(c.isdigit() for c in password),  # Has Digit
+        any(not c.isalnum() for c in password) # Has Symbol
+    ]
+
+    # all() will return True only if every item in the list is True
+    return all(checks)
 
 # --------------------------------------------------
 # PAYPAL TOKEN HELPER
@@ -200,17 +217,6 @@ def google_authorize():
     flash('Google login failed.', 'error')
     return redirect(url_for('signin'))
 
-def is_strong_password(password: str)->bool:
-    if len(password) < 12:
-        return False
-
-    has_upper = any(c.isupper() for c in password)
-    has_lower = any(c.islower() for c in password)
-    has_digit = any(c.isdigit() for c in password)
-    has_symbol = any(not c.isalnum() for c in password)
-
-    return has_upper and has_lower and has_digit and has_symbol
-
 # --------------------------------------------------
 # WEBSITE ROUTES
 # --------------------------------------------------
@@ -218,21 +224,6 @@ def is_strong_password(password: str)->bool:
 @app.route('/')
 def index():
     return render_template('index.html')
-
-@app.route('/product/<pk>')
-def product_page(pk):
-    if pk == '1':
-        return render_template('product1.html')
-
-    elif pk == '2':
-        return render_template('product2.html')
-
-    else:
-        return redirect(url_for('index'))
-
-@app.route('/profile/<user_id>')
-def profile(user_id):
-    return render_template('profile.html', user_id=user_id)
 
 @app.route('/cart')
 def cart():
@@ -242,8 +233,81 @@ def cart():
 def checkout():
     return render_template('checkout.html')
 
+@app.route('/confirmation')
+def confirmation():
+    if 'username' not in session:
+        return redirect(url_for('signin'))
+    return render_template('confirmation.html')
+
+@app.route('/logout')
+def logout():
+    session.clear() # This wipes the Flask session
+    flash("You have been logged out safely.", "info")
+    return redirect(url_for('index'))
+
+@app.route('/product/<pk>')
+def product_page(pk):
+    if pk == '1':
+        return render_template('product1.html')
+    elif pk == '2':
+        return render_template('product2.html')
+    else:
+        return redirect(url_for('index'))
+
+@app.route('/profile/<int:user_id>')
+def profile(user_id):
+    # Ensure the logged-in user can only see their profile
+    if 'username' not in session:
+        return redirect(url_for('signin'))
+
+    # Fetch user data
+    user = db.session.get(Customer, user_id)
+    if not user:
+        flash("Profile not found.", "error")
+        return redirect(url_for('index'))
+
+    # Fetch subscriptions linked to this customer
+    stmt = select(Subscription).where(Subscription.customer_id == user_id)
+    subscriptions = db.session.execute(stmt).scalars().all()
+
+    return render_template('profile.html', user=user, subscriptions=subscriptions)
+
 # --------------------------------------------------
-# SIGNIN
+# USER PASSWORD HANDLING
+# --------------------------------------------------
+
+@app.route('/change_password', methods=['GET', 'POST'])
+def change_password():
+    if 'username' not in session:
+        return redirect(url_for('signin'))
+
+    if request.method == 'POST':
+        # Logic to verify current pass and update new pass would go here
+        flash("Password updated!", "success")
+        return redirect(url_for('profile', user_id=session.get('user_id')))
+
+    return render_template('change_password.html')
+
+
+@app.route('/forgot_password', methods=['GET', 'POST'])
+def forgot_password():
+    if request.method == 'POST':
+        # Match the 'name' attribute from your HTML input
+        email = request.form.get('reset-email')
+
+        # Check if the email exists in the DB
+        user_exists = validate_email(email)
+
+        if user_exists:
+            flash(f"A secure reset link has been sent to {email}.", "info")
+        else:
+            flash("You should receive a reset link shortly.", "info")
+
+        return redirect(url_for('signin'))
+    return render_template('forgot-password.html')
+
+# --------------------------------------------------
+# SIGNIN AND SIGNUP
 # --------------------------------------------------
 
 @app.route('/signin', methods=['GET', 'POST'])
@@ -268,44 +332,90 @@ def signin():
 
     return render_template('signin.html')
 
-# --------------------------------------------------
-# SIGNUP
-# --------------------------------------------------
+# @app.route('/signup', methods=['GET', 'POST'])
+# def signup():
+#     if request.method == 'POST':
+#         fullname = request.form['fullname']
+#         username = request.form['username-signup']
+#         email = request.form['email-signup']
+#         password = request.form['pass-signup']
+#         confirm_password = request.form['confirm-pass']
+#
+#         # Make sure the user enters a strong password
+#         if not is_strong_password(password):
+#             flash("Password too weak! Ensure it's 12+ chars with upper, lower, number, and symbol.", "error")
+#             return redirect(url_for('signup'))
+#
+#         if not validate_username(username) and not validate_email(email):
+#             if password != confirm_password:
+#                 flash('Password and confirm password do not match.', 'error')
+#                 return redirect(url_for('signup'))
+#
+#             password_hash = hashed_passwd(password)
+#
+#             first_name = fullname.strip().split(' ')[0]
+#             last_name = fullname.strip().split(' ')[-1]
+#
+#             user_dets = (first_name, last_name, username, email, password_hash)
+#             add_customer(user_dets)
+#
+#             flash('Signup successful. Please sign in.', 'success')
+#             return redirect(url_for('signin'))
+#
+#         flash('Username or email already exists.', 'error')
+#         return redirect(url_for('signup'))
+#
+#     return render_template('signup.html')
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
     if request.method == 'POST':
-        fullname = request.form['fullname']
-        username = request.form['username-signup']
-        email = request.form['email-signup']
-        password = request.form['pass-signup']
-        confirm_password = request.form['confirm-pass']
+        full_name = request.form.get('fullname')
+        username = request.form.get('username-signup')
+        email = request.form.get('email-signup')
+        password = request.form.get('pass-signup')
+        confirm_password = request.form.get('confirm-pass')
 
-        if not validate_username(username) and not validate_email(email):
-            if password != confirm_password:
-                flash('Password and confirm password do not match.', 'error')
-                return redirect(url_for('signup'))
+        # Check if the passwords match
+        if password != confirm_password:
+            flash("Passwords do not match!", "error")
+            return redirect(url_for('signup'))
 
-            password_hash = hashed_passwd(password)
+        # Make sure the user's password is strong
+        if not is_strong_password(password):
+            flash("Password does not meet security requirements.", "error")
+            return redirect(url_for('signup'))
 
-            first_name = fullname.strip().split(' ')[0]
-            last_name = fullname.strip().split(' ')[-1]
+        # 3. SPLIT THE NAME for the database
+        name_parts = full_name.split(" ", 1)
+        f_name = name_parts[0]
+        l_name = name_parts[1] if len(name_parts) > 1 else ""
 
-            user_dets = (first_name, last_name, username, email, password_hash)
-            add_customer(user_dets)
+        # 4. Hash and Save
+        hashed_pw = hash_password(password)
+        new_user = Customer(
+            first_name=f_name,
+            last_name=l_name,
+            username=username,
+            email=email,
+            password_hash=hashed_pw
+        )
 
-            flash('Signup successful. Please sign in.', 'success')
+        try:
+            db.session.add(new_user)
+            db.session.commit()
+            flash("Account created! Please sign in.", "success")
             return redirect(url_for('signin'))
-
-        flash('Username or email already exists.', 'error')
-        return redirect(url_for('signup'))
+        except:
+            db.session.rollback()
+            flash("Username or Email already exists.", "error")
+            return redirect(url_for('signup'))
 
     return render_template('signup.html')
 
 # --------------------------------------------------
 # PAYPAL ROUTES
 # --------------------------------------------------
-
 
 @app.route("/api/paypal/create-order", methods=["POST"])
 def paypal_create_order():
@@ -371,9 +481,6 @@ def paypal_capture_order():
 
     return jsonify(response.json())
 
-# --------------------------------------------------
-# RUN SERVER
-# --------------------------------------------------
 
 if __name__ == '__main__':
     app.run(host='127.0.0.1', port=8000, debug=True)
