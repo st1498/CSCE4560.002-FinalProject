@@ -26,6 +26,103 @@ CSCE4560.002-FinalProject/
 └─requirements.txt
 ```
 
+## How to setup up MySQL server
+
+### Download and install MySQL
+
+- Download the APT Repository
+
+```bash
+wget https://dev.mysql.com/get/mysql-apt-config_0.8.36-1_all.deb
+```
+
+- Install the MySQL Server
+
+```bash
+sudo apt install mysql-server -y
+```
+
+- If the above command fails, try installing MariaDB instead
+
+```bash
+sudo apt-get install mariadb-server
+```
+
+- Check that the server is running
+
+```bash
+sudo systemctl status mysq
+```
+
+### Add a new user and password
+
+- Connect to MySQL
+
+```bash
+mysql -u root -p
+```
+
+- In the MySQL console, set a new user and password and exit the console.
+- In this example, we create user 'root' with password 'root'.
+
+```
+> ALTER USER root@localhost IDENTIFIED BY 'root';
+> QUIT;
+```
+
+### Create a new database
+
+- Create a new database called "safelock_sec"
+
+```bash
+mysql -u root -p cyber_max -p -e "CREATE DATABASE safelock_sec;"
+```
+
+- Verify that the database exists
+
+```bash
+mysql -u root -p cyber_max -p -e "SHOW DATABASES;"
+```
+
+```text
+# Example output
+
++--------------------+
+| Database           |
++--------------------+
+| information_schema |
+| mysql              |
+| performance_schema |
+| safelock_sec       |
+| sys                |
++--------------------+
+```
+
+- Create the tables for the new database
+
+```bash
+mysql -u root -p safelock_sec < create_tables.sql
+```
+
+- Verify that the tables have been successfully created
+
+```bash
+mysql -u root -p safelock_secx -p -e "SHOW TABLES;"
+```
+
+```text
+# Example output
+
++------------------------+
+| Tables_in_safelock_sec |
++------------------------+
+| Customers              |
+| Orders                 |
+| Products               |
+| Subscriptions          |
++------------------------+
+```
+
 ## How to run the project
 
 ```bash
