@@ -29,11 +29,11 @@ the_pass = os.getenv('PASSWORD', '')
 the_port = os.getenv('PORT', '3306')
 the_db = os.getenv('DB_NAME', 'your_database_name')
 
-#app.config['SQLALCHEMY_DATABASE_URI'] = f'mysql+pymysql://{the_user}:{the_pass}@{the_host}:{the_port}/{the_db}'
+app.config['SQLALCHEMY_DATABASE_URI'] = f'mysql+pymysql://{the_user}:{the_pass}@{the_host}:{the_port}/{the_db}'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.secret_key = os.getenv('SECRET_KEY')
 
-#db = SQLAlchemy(app)
+db = SQLAlchemy(app)
 
 # --------------------------------------------------
 # PAYPAL CONFIG
@@ -77,16 +77,15 @@ google = oauth.register(
 # PASSWORD HASHING
 # --------------------------------------------------
 
-#def hashed_passwd(password: str):
-#    ph = PasswordHasher()
-#   return ph.hash(password)
+def hashed_passwd(password: str):
+    ph = PasswordHasher()
+    return ph.hash(password)
 
 # --------------------------------------------------
 # PAYPAL TOKEN HELPER
 # --------------------------------------------------
 
 def get_paypal_access_token():
-
     auth = base64.b64encode(
         f"{PAYPAL_CLIENT_ID}:{PAYPAL_SECRET}".encode()
     ).decode()
@@ -112,7 +111,6 @@ def get_paypal_access_token():
 # --------------------------------------------------
 
 def add_customer(user_details):
-
     first_name, last_name, username, email, password_hash = user_details
 
     new_customer = Customer(
@@ -130,7 +128,6 @@ def add_customer(user_details):
         db.session.rollback()
 
 def get_customer_id(user_input):
-
     if '@' in user_input:
         stmt = select(Customer).where(Customer.email == user_input)
     else:
@@ -150,7 +147,6 @@ def validate_email(email) -> bool:
     return True if result else False
 
 def validate_password(user_id, password) -> bool:
-
     ph = PasswordHasher()
 
     stmt = select(Customer).where(Customer.id == user_id)
@@ -241,7 +237,6 @@ def index():
 
 @app.route('/product/<pk>')
 def product_page(pk):
-
     if pk == '1':
         return render_template('product1.html')
 
@@ -269,9 +264,7 @@ def checkout():
 
 @app.route('/signin', methods=['GET', 'POST'])
 def signin():
-
     if request.method == 'POST':
-
         username = request.form.get('username-field', '').strip()
         password = request.form.get('password-field', '').strip()
 
@@ -282,10 +275,8 @@ def signin():
         user_id = get_customer_id(username)
 
         if user_id and validate_password(user_id, password):
-
             session['username'] = username
             flash('Signed in successfully.', 'success')
-
             return redirect(url_for('profile', user_id=user_id))
 
         flash('Incorrect username/email or password.', 'error')
@@ -299,9 +290,7 @@ def signin():
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
-
     if request.method == 'POST':
-
         fullname = request.form['fullname']
         username = request.form['username-signup']
         email = request.form['email-signup']
@@ -309,7 +298,6 @@ def signup():
         confirm_password = request.form['confirm-pass']
 
         if not validate_username(username) and not validate_email(email):
-
             if password != confirm_password:
                 flash('Password and confirm password do not match.', 'error')
                 return redirect(url_for('signup'))
@@ -404,4 +392,4 @@ def paypal_capture_order():
 # --------------------------------------------------
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8000, debug=True)
+    app.run(host='127.0.0.1', port=8000, debug=True)
