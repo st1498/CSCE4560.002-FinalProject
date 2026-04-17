@@ -12,7 +12,7 @@ CREATE TABLE Customers (
     last_name VARCHAR(20) NOT NULL,
     email VARCHAR(50) NOT NULL UNIQUE,
     username VARCHAR(20) NOT NULL UNIQUE,
-    password_hash VARCHAR(250) NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
     date_registered DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id)
 );
