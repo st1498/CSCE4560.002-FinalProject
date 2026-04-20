@@ -28,9 +28,8 @@
         </div>
 
         <div class="google-auth-container">
-            <a href="{{ url_for('google_login') }}" class="google-btn">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg"
-                     alt="Google Logo" class="google-icon">
+            <a href="{{ url_for('google_login') }}" class="btn-google">
+                <img src="{{ url_for('static', filename='google-logo.svg') }}" alt="Google Logo" class="google-icon">
                 <span>Sign in with Google</span>
             </a>
         </div>
