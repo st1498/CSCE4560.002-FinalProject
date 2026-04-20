@@ -197,10 +197,12 @@ def cart():
 @app.route('/checkout')
 def checkout():
     if 'username' not in session:
-        flash("Please log in to continue to checkout.", "warning")
         return redirect(url_for('signin'))
 
-    return render_template('checkout.html', paypal_client_id=PAYPAL_CLIENT_ID)
+    return render_template(
+        'checkout.html',
+        paypal_client_id=PAYPAL_CLIENT_ID
+    )
 
 @app.route('/confirmation')
 def confirmation():
