@@ -1,5 +1,6 @@
-/*Global Styles*/
-
+/* =========================
+   Global Styles
+========================= */
 body {
     font-family: Arial, sans-serif;
     margin: 0;
@@ -7,7 +8,9 @@ body {
     color: #333333;
 }
 
-/*Header & Navigation*/
+/* =========================
+   Header & Navigation
+========================= */
 header {
     background: #333333;
     color: white;
@@ -36,7 +39,9 @@ nav a:hover {
     color: #990100;
 }
 
-/*Layout Containers*/
+/* =========================
+   Layout Elements
+========================= */
 .breadcrumb {
     padding: 10px 5%;
     background: #E8E8E8;
@@ -50,20 +55,57 @@ nav a:hover {
     padding: 40px;
     max-width: 900px;
     border-radius: 40px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
 }
 
 .box {
     background: white;
     padding: 50px;
     border-radius: 40px;
-    box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
     width: 400px;
     text-align: center;
     margin: 50px auto;
 }
 
-/*Inputs & Buttons*/
+/* =========================
+   Hero Section
+========================= */
+.hero {
+    text-align: center;
+    padding: 80px 20px;
+}
+
+.hero h1 {
+    font-size: 60px;
+    color: #990100;
+    margin: 0;
+    text-transform: uppercase;
+}
+
+/* =========================
+   Product Grid
+========================= */
+.product-grid {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    padding: 20px 5% 60px;
+}
+
+.product-card {
+    background: white;
+    padding: 40px;
+    border-radius: 20px;
+    width: 320px;
+    text-align: center;
+    border-top: 8px solid #990100;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+}
+
+/* =========================
+   Forms
+========================= */
 input {
     width: 100%;
     padding: 14px;
@@ -82,6 +124,9 @@ input {
     text-align: left;
 }
 
+/* =========================
+   Buttons
+========================= */
 .btn {
     background: #990100;
     color: white;
@@ -95,9 +140,9 @@ input {
     margin: 10px 5px;
     font-weight: bold;
     font-size: 14px;
-    transition: 0.3s;
     border: none;
     cursor: pointer;
+    transition: 0.3s;
 }
 
 .btn:hover {
@@ -113,7 +158,9 @@ input {
     background: #444444;
 }
 
-/*Tables*/
+/* =========================
+   Tables
+========================= */
 table {
     width: 100%;
     border-collapse: collapse;
@@ -140,7 +187,9 @@ code {
     font-family: monospace;
 }
 
-/*Flash Messages*/
+/* =========================
+   Flash Messages
+========================= */
 .flash-wrapper {
     margin-bottom: 12px;
 }
@@ -164,47 +213,62 @@ code {
     border: 1px solid #7dcf7d;
 }
 
-/*Google OAuth Button*/
+/* =========================
+   Google Auth
+========================= */
 .google-auth-container {
     text-align: center;
     margin-top: 20px;
 }
 
-.google-btn {
+.separator {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    color: #666;
+    margin-bottom: 15px;
+}
+
+.separator::before,
+.separator::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid #ccc;
+}
+
+.separator span {
+    padding: 0 10px;
+}
+
+.btn-google {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 12px;
-
     width: 100%;
-    max-width: 260px;
+    max-width: 300px;
     margin: 0 auto;
 
-    background: #ffffff;
+    background-color: #ffffff;
     color: #3c4043;
     border: 1px solid #dadce0;
     border-radius: 4px;
+    padding: 10px 15px;
 
-    font-size: 14px;
-    font-weight: 500;
     text-decoration: none;
+    font-weight: 500;
+    font-family: 'Google Sans', Arial, sans-serif;
 
-    padding: 10px 16px;
-    cursor: pointer;
-
-    transition: background 0.2s ease, box-shadow 0.2s ease;
+    transition: background-color 0.2s, box-shadow 0.2s;
 }
 
-.google-btn:hover {
-    background: #f7f8f8;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-}
-
-.google-btn:active {
-    background: #eee;
+.btn-google:hover {
+    background-color: #f8f9fa;
+    box-shadow: 0 1px 2px rgba(60, 64, 67, 0.3),
+                0 1px 3px rgba(60, 64, 67, 0.15);
 }
 
 .google-icon {
-    width: 20px;
-    height: 20px;
+    width: 18px;
+    height: 18px;
+    margin-right: 10px;
 }
