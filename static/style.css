@@ -1,84 +1,210 @@
-body { font-family: Arial, sans-serif; margin: 0; background: #F6F6F6; color: #333333; }
-header { background: #333333; color: white; padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; }
-.logo { font-size: 24px; font-weight: bold; color: #990100; text-decoration: none; }
-nav a, nav a:visited { color: white; text-decoration: none; margin-left: 20px; font-size: 14px; }
-nav a:hover { color: #990100; }
-.breadcrumb { padding: 10px 5%; background: #E8E8E8; font-size: 12px; border-bottom: 1px solid #ccc; }
+/*Global Styles*/
 
-.container { background: white; margin: 40px auto; padding: 40px; max-width: 900px; border-radius: 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
-.hero { text-align: center; padding: 80px 20px; }
-.hero h1 { font-size: 60px; color: #990100; margin: 0; text-transform: uppercase; }
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    background: #F6F6F6;
+    color: #333333;
+}
 
-.product-grid { display: flex; justify-content: center; gap: 40px; padding: 20px 5% 60px; }
-.product-card { background: white; padding: 40px; border-radius: 20px; width: 320px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.05); border-top: 8px solid #990100; }
+/*Header & Navigation*/
+header {
+    background: #333333;
+    color: white;
+    padding: 15px 5%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
 
-.box { background: white; padding: 50px; border-radius: 40px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); width: 400px; text-align: center; margin: 50px auto; }
-input { width: 100%; padding: 14px; margin: 10px 0; border: 1px solid #E8E8E8; border-radius: 10px; box-sizing: border-box; background: #F9F9F9; font-size: 14px; }
-.rules { font-size: 11px; color: #666; margin: 5px 0 15px; text-align: left; }
+.logo {
+    font-size: 24px;
+    font-weight: bold;
+    color: #990100;
+    text-decoration: none;
+}
 
-.btn { background: #990100; color: white; height: 48px; padding: 0 25px; border-radius: 10px; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; margin: 10px 5px; font-weight: bold; font-size: 14px; transition: 0.3s; border: none; cursor: pointer; }
-.btn:hover { background: #B90504; transform: translateY(-2px); }
-.btn-dark { background: #333333; }
-.btn-dark:hover { background: #444444; }
+nav a,
+nav a:visited {
+    color: white;
+    text-decoration: none;
+    margin-left: 20px;
+    font-size: 14px;
+}
 
-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-th { text-align: left; padding: 15px; background: #F9F9F9; color: #990100; border-bottom: 2px solid #eee; }
-td { padding: 15px; border-bottom: 1px solid #eee; }
-code { background: #eee; padding: 4px 8px; border-radius: 5px; font-family: monospace; }
+nav a:hover {
+    color: #990100;
+}
 
-.flash-wrapper { margin-bottom: 12px; }
-.flash { padding: 10px; border-radius: 8px; margin-bottom: 8px; font-size: 13px; }
-.flash.error { background: #fde2e2; color: #a30808; border: 1px solid #faa; }
-.flash.success { background: #e5f3e5; color: #1f6e3c; border: 1px solid #7dcf7d; }
-/* Google Button Styles */
+/*Layout Containers*/
+.breadcrumb {
+    padding: 10px 5%;
+    background: #E8E8E8;
+    font-size: 12px;
+    border-bottom: 1px solid #ccc;
+}
+
+.container {
+    background: white;
+    margin: 40px auto;
+    padding: 40px;
+    max-width: 900px;
+    border-radius: 40px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+}
+
+.box {
+    background: white;
+    padding: 50px;
+    border-radius: 40px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+    width: 400px;
+    text-align: center;
+    margin: 50px auto;
+}
+
+/*Inputs & Buttons*/
+input {
+    width: 100%;
+    padding: 14px;
+    margin: 10px 0;
+    border: 1px solid #E8E8E8;
+    border-radius: 10px;
+    box-sizing: border-box;
+    background: #F9F9F9;
+    font-size: 14px;
+}
+
+.rules {
+    font-size: 11px;
+    color: #666;
+    margin: 5px 0 15px;
+    text-align: left;
+}
+
+.btn {
+    background: #990100;
+    color: white;
+    height: 48px;
+    padding: 0 25px;
+    border-radius: 10px;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin: 10px 5px;
+    font-weight: bold;
+    font-size: 14px;
+    transition: 0.3s;
+    border: none;
+    cursor: pointer;
+}
+
+.btn:hover {
+    background: #B90504;
+    transform: translateY(-2px);
+}
+
+.btn-dark {
+    background: #333333;
+}
+
+.btn-dark:hover {
+    background: #444444;
+}
+
+/*Tables*/
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+th {
+    text-align: left;
+    padding: 15px;
+    background: #F9F9F9;
+    color: #990100;
+    border-bottom: 2px solid #eee;
+}
+
+td {
+    padding: 15px;
+    border-bottom: 1px solid #eee;
+}
+
+code {
+    background: #eee;
+    padding: 4px 8px;
+    border-radius: 5px;
+    font-family: monospace;
+}
+
+/*Flash Messages*/
+.flash-wrapper {
+    margin-bottom: 12px;
+}
+
+.flash {
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    font-size: 13px;
+}
+
+.flash.error {
+    background: #fde2e2;
+    color: #a30808;
+    border: 1px solid #faa;
+}
+
+.flash.success {
+    background: #e5f3e5;
+    color: #1f6e3c;
+    border: 1px solid #7dcf7d;
+}
+
+/*Google OAuth Button*/
 .google-auth-container {
     text-align: center;
     margin-top: 20px;
 }
 
-.separator {
-    display: flex;
-    align-items: center;
-    text-align: center;
-    color: #666;
-    margin-bottom: 15px;
-}
-
-.separator::before, .separator::after {
-    content: '';
-    flex: 1;
-    border-bottom: 1px solid #ccc;
-}
-
-.separator span {
-    padding: 0 10px;
-}
-
-.btn-google {
+.google-btn {
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: #ffffff;
+    gap: 12px;
+
+    width: 100%;
+    max-width: 260px;
+    margin: 0 auto;
+
+    background: #ffffff;
     color: #3c4043;
     border: 1px solid #dadce0;
     border-radius: 4px;
-    padding: 10px 15px;
-    text-decoration: none;
+
+    font-size: 14px;
     font-weight: 500;
-    font-family: 'Google Sans', Arial, sans-serif;
-    transition: background-color 0.2s, box-shadow 0.2s;
-    width: 100%; /* Adjust this if you don't want it full width */
-    max-width: 300px;
-    margin: 0 auto;
+    text-decoration: none;
+
+    padding: 10px 16px;
+    cursor: pointer;
+
+    transition: background 0.2s ease, box-shadow 0.2s ease;
 }
 
-.btn-google:hover {
-    background-color: #f8f9fa;
-    box-shadow: 0 1px 2px 0 rgba(60,64,67,0.3), 0 1px 3px 1px rgba(60,64,67,0.15);
+.google-btn:hover {
+    background: #f7f8f8;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+.google-btn:active {
+    background: #eee;
 }
 
 .google-icon {
-    width: 18px;
-    height: 18px;
-    margin-right: 10px;
+    width: 20px;
+    height: 20px;
 }
