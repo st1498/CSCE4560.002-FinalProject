@@ -1,15 +1,15 @@
 from flask import Flask, render_template, url_for, redirect, request, session, flash
 from authlib.integrations.flask_client import OAuth
-import secrets
-from argon2 import PasswordHasher, exceptions
+from models import Base, Customer, Subscription
 from flask_sqlalchemy import SQLAlchemy
+from argon2 import PasswordHasher
 from dotenv import load_dotenv
 from sqlalchemy import select
-from models import Base, Customer
-import os
-import base64
-import requests
 from flask_cors import CORS
+import requests
+import secrets
+import base64
+import os
 
 # --------------------------------------------------
 # FLASK APP AND DATABASE INITIALIZATION
@@ -19,7 +19,6 @@ app = Flask(__name__)
 CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 # Load the credentials from environment variable
-
 basedir = os.path.abspath(os.path.dirname(__name__))
 load_dotenv(os.path.join(basedir, '.env'))
 
@@ -29,6 +28,7 @@ the_pass = os.getenv('PASSWORD')
 the_port = os.getenv('PORT')
 the_db = os.getenv("DB_NAME")
 
+# Connect to the database using SQLAlchemy
 app.config['SQLALCHEMY_DATABASE_URI'] = f'mysql+pymysql://{the_user}:{the_pass}@{the_host}:{the_port}/{the_db}'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.secret_key = os.getenv('SECRET_KEY')
@@ -59,30 +59,6 @@ google = oauth.register(
 )
 
 # --------------------------------------------------
-# PASSWORD HASHING AND STRENGTH TESTING
-# --------------------------------------------------
-
-def hashed_passwd(password: str):
-    ph = PasswordHasher()
-    return ph.hash(password)
-
-def is_strong_password(password: str):
-    # Check the password's length
-    if len(password) < 12:
-        return False
-
-    # Check all the requirements
-    checks = [
-        any(c.isupper() for c in password),  # Has Upper
-        any(c.islower() for c in password),  # Has Lower
-        any(c.isdigit() for c in password),  # Has Digit
-        any(not c.isalnum() for c in password) # Has Symbol
-    ]
-
-    # all() will return True only if every item in the list is True
-    return all(checks)
-
-# --------------------------------------------------
 # PAYPAL TOKEN HELPER
 # --------------------------------------------------
 
@@ -107,6 +83,7 @@ def get_paypal_access_token():
 
     return response.json()["access_token"]
 
+
 # --------------------------------------------------
 # DATABASE COMMUNICATION
 # --------------------------------------------------
@@ -128,6 +105,7 @@ def add_customer(user_details):
     except Exception:
         db.session.rollback()
 
+
 def get_customer_id(user_input):
     if '@' in user_input:
         stmt = select(Customer).where(Customer.email == user_input)
@@ -137,31 +115,18 @@ def get_customer_id(user_input):
     result = db.session.execute(stmt).scalar_one_or_none()
     return result.id if result else None
 
+
 def validate_username(username) -> bool:
     stmt = select(Customer).where(Customer.username == username)
     result = db.session.execute(stmt).scalar_one_or_none()
     return True if result else False
+
 
 def validate_email(email) -> bool:
     stmt = select(Customer).where(Customer.email == email)
     result = db.session.execute(stmt).scalar_one_or_none()
     return True if result else False
 
-def validate_password(user_id, password) -> bool:
-    ph = PasswordHasher()
-
-    stmt = select(Customer).where(Customer.id == user_id)
-    result = db.session.execute(stmt).scalar_one_or_none()
-
-    if not result:
-        return False
-
-    password_hash = result.password_hash
-
-    try:
-        return ph.verify(password_hash, password)
-    except exceptions.VerifyMismatchError:
-        return False
 
 @app.route('/login/google')
 def google_login():
@@ -169,19 +134,20 @@ def google_login():
     redirect_uri = url_for('google_authorize', _external=True)
     return google.authorize_redirect(redirect_uri)
 
+
 @app.route('/login/google/authorize')
 def google_authorize():
     token = google.authorize_access_token()
     user_info = token.get('userinfo')
-    
+
     if user_info:
         email = user_info.get('email')
         first_name = user_info.get('given_name', 'Google')
         last_name = user_info.get('family_name', 'User')
-        
+
         # Check if user exists by email using your existing function
         user_id = get_customer_id(email)
-        
+
         if user_id:
             # User exists, grab their username and log them in
             customer = db.session.execute(select(Customer).where(Customer.id == user_id)).scalar_one_or_none()
@@ -192,28 +158,28 @@ def google_authorize():
             # New user via Google: Auto-create an account
             # Generate a secure random password since they use Google to log in
             random_pass = secrets.token_urlsafe(16)
-            password_hash = hashed_passwd(random_pass)
-            
+            password_hash = PasswordHasher.hash(random_pass)
+
             # Create a base username from their email prefix
             base_username = email.split('@')[0]
             username = base_username
-            
+
             # Ensure the username is unique in your database
             counter = 1
             while validate_username(username):
                 username = f"{base_username}{counter}"
                 counter += 1
-                
+
             # Use your existing add_customer function
-            user_dets = (first_name, last_name, username, email, password_hash)
-            add_customer(user_dets)
-            
+            user_details = (first_name, last_name, username, email, password_hash)
+            add_customer(user_details)
+
             # Log them in
             new_user_id = get_customer_id(email)
             session['username'] = username
             flash('Google account linked and signed in successfully.', 'success')
             return redirect(url_for('profile', user_id=new_user_id))
-            
+
     flash('Google login failed.', 'error')
     return redirect(url_for('signin'))
 
@@ -241,7 +207,7 @@ def confirmation():
 
 @app.route('/logout')
 def logout():
-    session.clear() # This wipes the Flask session
+    session.clear()  # This wipes the Flask session
     flash("You have been logged out safely.", "info")
     return redirect(url_for('index'))
 
@@ -272,145 +238,22 @@ def profile(user_id):
 
     return render_template('profile.html', user=user, subscriptions=subscriptions)
 
-# --------------------------------------------------
-# USER PASSWORD HANDLING
-# --------------------------------------------------
-
-@app.route('/change_password', methods=['GET', 'POST'])
+@app.route('/change_password')
 def change_password():
-    if 'username' not in session:
-        return redirect(url_for('signin'))
+    flash('Password management is disabled. Please sign in with Google.', 'info')
+    return redirect(url_for('signin'))
 
-    if request.method == 'POST':
-        # Logic to verify current pass and update new pass would go here
-        flash("Password updated!", "success")
-        return redirect(url_for('profile', user_id=session.get('user_id')))
-
-    return render_template('change_password.html')
-
-
-@app.route('/forgot_password', methods=['GET', 'POST'])
+@app.route('/forgot_password')
 def forgot_password():
-    if request.method == 'POST':
-        # Match the 'name' attribute from your HTML input
-        email = request.form.get('reset-email')
+    flash('Password recovery is disabled. Please sign in with Google.', 'info')
+    return redirect(url_for('signin'))
 
-        # Check if the email exists in the DB
-        user_exists = validate_email(email)
-
-        if user_exists:
-            flash(f"A secure reset link has been sent to {email}.", "info")
-        else:
-            flash("You should receive a reset link shortly.", "info")
-
-        return redirect(url_for('signin'))
-    return render_template('forgot-password.html')
-
-# --------------------------------------------------
-# SIGNIN AND SIGNUP
-# --------------------------------------------------
-
-@app.route('/signin', methods=['GET', 'POST'])
+@app.route('/signin')
 def signin():
-    if request.method == 'POST':
-        username = request.form.get('username-field', '').strip()
-        password = request.form.get('password-field', '').strip()
-
-        if not username or not password:
-            flash('Please enter both username/email and password.', 'error')
-            return redirect(url_for('signin'))
-
-        user_id = get_customer_id(username)
-
-        if user_id and validate_password(user_id, password):
-            session['username'] = username
-            flash('Signed in successfully.', 'success')
-            return redirect(url_for('profile', user_id=user_id))
-
-        flash('Incorrect username/email or password.', 'error')
-        return redirect(url_for('signin'))
-
     return render_template('signin.html')
 
-# @app.route('/signup', methods=['GET', 'POST'])
-# def signup():
-#     if request.method == 'POST':
-#         fullname = request.form['fullname']
-#         username = request.form['username-signup']
-#         email = request.form['email-signup']
-#         password = request.form['pass-signup']
-#         confirm_password = request.form['confirm-pass']
-#
-#         # Make sure the user enters a strong password
-#         if not is_strong_password(password):
-#             flash("Password too weak! Ensure it's 12+ chars with upper, lower, number, and symbol.", "error")
-#             return redirect(url_for('signup'))
-#
-#         if not validate_username(username) and not validate_email(email):
-#             if password != confirm_password:
-#                 flash('Password and confirm password do not match.', 'error')
-#                 return redirect(url_for('signup'))
-#
-#             password_hash = hashed_passwd(password)
-#
-#             first_name = fullname.strip().split(' ')[0]
-#             last_name = fullname.strip().split(' ')[-1]
-#
-#             user_dets = (first_name, last_name, username, email, password_hash)
-#             add_customer(user_dets)
-#
-#             flash('Signup successful. Please sign in.', 'success')
-#             return redirect(url_for('signin'))
-#
-#         flash('Username or email already exists.', 'error')
-#         return redirect(url_for('signup'))
-#
-#     return render_template('signup.html')
-
-@app.route('/signup', methods=['GET', 'POST'])
+@app.route('/signup')
 def signup():
-    if request.method == 'POST':
-        full_name = request.form.get('fullname')
-        username = request.form.get('username-signup')
-        email = request.form.get('email-signup')
-        password = request.form.get('pass-signup')
-        confirm_password = request.form.get('confirm-pass')
-
-        # Check if the passwords match
-        if password != confirm_password:
-            flash("Passwords do not match!", "error")
-            return redirect(url_for('signup'))
-
-        # Make sure the user's password is strong
-        if not is_strong_password(password):
-            flash("Password does not meet security requirements.", "error")
-            return redirect(url_for('signup'))
-
-        # 3. SPLIT THE NAME for the database
-        name_parts = full_name.split(" ", 1)
-        f_name = name_parts[0]
-        l_name = name_parts[1] if len(name_parts) > 1 else ""
-
-        # 4. Hash and Save
-        hashed_pw = hash_password(password)
-        new_user = Customer(
-            first_name=f_name,
-            last_name=l_name,
-            username=username,
-            email=email,
-            password_hash=hashed_pw
-        )
-
-        try:
-            db.session.add(new_user)
-            db.session.commit()
-            flash("Account created! Please sign in.", "success")
-            return redirect(url_for('signin'))
-        except:
-            db.session.rollback()
-            flash("Username or Email already exists.", "error")
-            return redirect(url_for('signup'))
-
     return render_template('signup.html')
 
 # --------------------------------------------------
@@ -450,7 +293,6 @@ def paypal_create_order():
         return jsonify({"error": "Order creation failed", "details": str(e)}), 500
 
     return jsonify(response.json())
-
 
 @app.route("/api/paypal/capture-order", methods=["POST"])
 def paypal_capture_order():
