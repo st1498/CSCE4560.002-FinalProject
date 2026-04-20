@@ -38,36 +38,65 @@
             <input type="text" id="zip" placeholder="Zip Code">
         </div>
 
-        <h3>Payment Method</h3>
-        <p style="font-size: 0.8em; color: #666;">(Demonstration Only)</p>
-        <input type="text" placeholder="Credit Card Number">
-        <div class="flex">
-            <input type="text" placeholder="MM/YY" style="flex: 2;">
-            <input type="text" placeholder="CVV" style="flex: 1;">
-        </div>
-
-        <button class="btn" onclick="processPayment()">Process Payment</button>
+        <h3>Pay with PayPal</h3>
+        <div id="paypal-button-container"></div>
     </div>
 
-   <script>
-        function processPayment() {
-            const street = document.getElementById('street').value;
-            const city = document.getElementById('city').value;
-            const state = document.getElementById('state').value;
-            const zip = document.getElementById('zip').value;
+    <!-- PayPal JS SDK -->
+    <script src="https://www.paypal.com/sdk/js?client-id={{ paypal_client_id }}&currency=USD"></script>
 
-            if (street && city && state && zip) {
-                const fullAddress = `${street}, ${city}, ${state} ${zip}`;
-                localStorage.setItem('userAddress', fullAddress);
+    <script>
+        paypal.Buttons({
+            createOrder: function(data, actions) {
+                // Call your Flask backend to create the order
+                return fetch("/api/paypal/create-order", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        // optionally pass cart total here
+                    })
+                })
+                .then(res => res.json())
+                .then(data => data.id);
+            },
 
-                // FIX 3: Point to a confirmation route
-                // Make sure you have @app.route('/confirmation') in your app.py!
-                window.location.href = "{{ url_for('index') }}";
-                alert("Payment Processed! Redirecting to Home.");
-            } else {
-                alert("Please complete the billing address to secure your order.");
+            onApprove: function(data, actions) {
+                // Capture the order on your backend
+                return fetch("/api/paypal/capture-order", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        orderID: data.orderID
+                    })
+                })
+                .then(res => res.json())
+                .then(details => {
+                    // Save address locally (same logic you had)
+                    const street = document.getElementById('street').value;
+                    const city = document.getElementById('city').value;
+                    const state = document.getElementById('state').value;
+                    const zip = document.getElementById('zip').value;
+
+                    if (street && city && state && zip) {
+                        const fullAddress = `${street}, ${city}, ${state} ${zip}`;
+                        localStorage.setItem('userAddress', fullAddress);
+                    }
+
+                    alert("Payment successful!");
+                    window.location.href = "{{ url_for('index') }}";
+                });
+            },
+
+            onError: function(err) {
+                console.error(err);
+                alert("Payment failed. Please try again.");
             }
-        }
-</script>
+
+        }).render('#paypal-button-container');
+    </script>
 </body>
 </html>
