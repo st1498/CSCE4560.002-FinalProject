@@ -19,22 +19,11 @@
           {% endif %}
         {% endwith %}
 
-        <form action="{{ url_for('signup') }}" method="POST">
-            <input type="text" id="fullname" name="fullname" placeholder="Full Name" required>
-            <input type="text" id="username-signup" name="username-signup" placeholder="Username" required>
-            <input type="email" id="email-signup" name="email-signup" placeholder="Email Address" required>
-            <input type="password" id="pass-signup" name="pass-signup" placeholder="Password" required>
-
-            <div class="rules" style="font-size: 11px; color: #666; margin-bottom: 10px;">
-                Security Policy: Min 12 characters, including Uppercase, Lowercase, Number, and Symbol.
-            </div>
-
-            <input type="password" id="confirm-pass" name="confirm-pass" placeholder="Confirm Password" required>
-            <button type="submit" class="btn">Create Account</button>
-        </form>
+        <div class="auth-message" style="text-align: center; margin-bottom: 20px;">
+            <p>Create your account using Google OAuth.</p>
+        </div>
 
         <div class="google-auth-container">
-            <p class="separator"><span>OR</span></p>
             <a href="{{ url_for('google_login') }}" class="btn-google" style="text-decoration: none; display: flex; align-items: center; justify-content: center;">
                 <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google Logo" class="google-icon" style="width: 18px; margin-right: 10px;">
                 Continue with Google
