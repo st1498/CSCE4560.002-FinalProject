@@ -2,7 +2,6 @@ from flask import Flask, render_template, url_for, redirect, request, session, f
 from authlib.integrations.flask_client import OAuth
 from models import Base, Customer, Subscription
 from flask_sqlalchemy import SQLAlchemy
-from argon2 import PasswordHasher
 from dotenv import load_dotenv
 from sqlalchemy import select
 from flask_cors import CORS
