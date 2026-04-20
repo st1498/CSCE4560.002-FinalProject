@@ -1,4 +1,4 @@
-from flask import Flask, render_template, url_for, redirect, request, session, flash
+from flask import Flask, render_template, url_for, redirect, request, session, flash, jsonify
 from authlib.integrations.flask_client import OAuth
 from models import Base, Customer, Subscription
 from flask_sqlalchemy import SQLAlchemy
@@ -197,7 +197,11 @@ def cart():
 
 @app.route('/checkout')
 def checkout():
-    return render_template('checkout.html')
+    if 'username' not in session:
+        flash("Please log in to continue to checkout.", "warning")
+        return redirect(url_for('signin'))
+
+    return render_template('checkout.html', paypal_client_id=PAYPAL_CLIENT_ID)
 
 @app.route('/confirmation')
 def confirmation():
@@ -262,6 +266,14 @@ def signup():
 
 @app.route("/api/paypal/create-order", methods=["POST"])
 def paypal_create_order():
+    if 'username' not in session:
+        return jsonify({"error": "Unauthorized"}), 403
+
+    total = calculate_cart_total()
+
+    if total <= 0:
+        return jsonify({"error": "Cart is empty"}), 400
+
     token = get_paypal_access_token()
     if not token:
         return jsonify({"error": "PayPal authentication failed"}), 500
@@ -270,8 +282,11 @@ def paypal_create_order():
         "intent": "CAPTURE",
         "purchase_units": [
             {
-                "amount": {"currency_code": "USD", "value": "10.00"},
-                "description": "CyberMax Security Order"
+                "amount": {
+                    "currency_code": "USD",
+                    "value": f"{total:.2f}"
+                },
+                "description": "Safelock Security Order"
             }
         ]
     }
@@ -290,15 +305,18 @@ def paypal_create_order():
         response.raise_for_status()
     except requests.exceptions.RequestException as e:
         print("[PayPal ERROR] Order creation failed:", e)
-        return jsonify({"error": "Order creation failed", "details": str(e)}), 500
+        return jsonify({"error": "Order creation failed"}), 500
 
     return jsonify(response.json())
 
 @app.route("/api/paypal/capture-order", methods=["POST"])
 def paypal_capture_order():
+    if 'username' not in session:
+        return jsonify({"error": "Unauthorized"}), 403
+
     data = request.get_json()
     if not data or "orderID" not in data:
-        return jsonify({"error": "Missing orderID in request body"}), 400
+        return jsonify({"error": "Missing orderID"}), 400
 
     orderID = data["orderID"]
 
@@ -319,9 +337,45 @@ def paypal_capture_order():
         response.raise_for_status()
     except requests.exceptions.RequestException as e:
         print("[PayPal ERROR] Capture failed:", e)
-        return jsonify({"error": "Capture failed", "details": str(e)}), 500
+        return jsonify({"error": "Capture failed"}), 500
+
+    # Clear cart after successful payment
+    session.pop('cart', None)
 
     return jsonify(response.json())
+# --------------------------------------------------
+# CART HELPERS
+# --------------------------------------------------
+
+def get_cart():
+    """Retrieve cart from session"""
+    return session.get('cart', [])
+
+
+def calculate_cart_total():
+    """Calculate total price of cart"""
+    cart = get_cart()
+    total = sum(item['price'] * item['qty'] for item in cart)
+    return round(total, 2)
+
+@app.route('/api/cart/add', methods=['POST'])
+def add_to_cart():
+    if 'username' not in session:
+        return jsonify({"error": "Unauthorized"}), 403
+
+    data = request.get_json()
+
+    item = {
+        "name": data.get("name"),
+        "price": float(data.get("price")),
+        "qty": int(data.get("qty", 1))
+    }
+
+    cart = session.get('cart', [])
+    cart.append(item)
+    session['cart'] = cart
+
+    return jsonify({"message": "Item added", "cart": cart})
 
 
 if __name__ == '__main__':
