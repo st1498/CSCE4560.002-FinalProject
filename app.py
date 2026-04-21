@@ -203,6 +203,7 @@ def cart():
 
 @app.route('/checkout')
 def checkout():
+    print("CHECKOUT PAYPAL_CLIENT_ID:", repr(PAYPAL_CLIENT_ID))
     if 'username' not in session:
         return redirect(url_for('signin'))
 
