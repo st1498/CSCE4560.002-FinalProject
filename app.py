@@ -1,5 +1,6 @@
 from flask import Flask, render_template, url_for, redirect, request, session, flash, jsonify
 from werkzeug.security import generate_password_hash
+from werkzeug.middleware.proxy_fix import ProxyFix
 from authlib.integrations.flask_client import OAuth
 from models import Base, Customer, Subscription
 from flask_sqlalchemy import SQLAlchemy
@@ -16,6 +17,7 @@ import os
 # --------------------------------------------------
 
 app = Flask(__name__)
+app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 # Load the credentials from environment variable
