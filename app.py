@@ -1,4 +1,5 @@
 from flask import Flask, render_template, url_for, redirect, request, session, flash, jsonify
+from werkzeug.security import generate_password_hash
 from authlib.integrations.flask_client import OAuth
 from models import Base, Customer, Subscription
 from flask_sqlalchemy import SQLAlchemy
@@ -28,12 +29,15 @@ the_port = os.getenv('PORT')
 the_db = os.getenv("DB_NAME")
 
 # Connect to the database using SQLAlchemy
-app.config['SQLALCHEMY_DATABASE_URI'] = f'mysql+pymysql://{the_user}:{the_pass}@{the_host}:{the_port}/{the_db}'
+#app.config['SQLALCHEMY_DATABASE_URI'] = f'mysql+pymysql://{the_user}:{the_pass}@{the_host}:{the_port}/{the_db}'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///ecommerce.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.secret_key = os.getenv('SECRET_KEY')
 
 db = SQLAlchemy(model_class=Base)
 db.init_app(app)
+with app.app_context():
+    db.create_all()
 
 # --------------------------------------------------
 # PAYPAL CONFIG
@@ -157,7 +161,8 @@ def google_authorize():
             # New user via Google: Auto-create an account
             # Generate a secure random password since they use Google to log in
             random_pass = secrets.token_urlsafe(16)
-            password_hash = PasswordHasher.hash(random_pass)
+            #password_hash = PasswordHasher.hash(random_pass)
+            password_hash = generate_password_hash(random_pass)
 
             # Create a base username from their email prefix
             base_username = email.split('@')[0]
@@ -176,6 +181,7 @@ def google_authorize():
             # Log them in
             new_user_id = get_customer_id(email)
             session['username'] = username
+            session['user_id'] = new_user_id
             flash('Google account linked and signed in successfully.', 'success')
             return redirect(url_for('profile', user_id=new_user_id))
 

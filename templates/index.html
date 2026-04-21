@@ -9,7 +9,7 @@
     <header>
         <a href="{{ url_for('index') }}" class="logo">Safelock Security</a>
         <nav>
-            {% if session.get('username') %}
+            {% if session.get('username') and session.get('user_id') %}
                 <span>{{ session['username'] }}</span> |
                 <a href="{{ url_for('profile', user_id=session.get('user_id')) }}">Profile</a> |
                 <a href="{{ url_for('cart') }}">Cart</a> |
