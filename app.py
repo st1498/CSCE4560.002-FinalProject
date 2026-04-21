@@ -45,8 +45,8 @@ with app.app_context():
 # PAYPAL CONFIG
 # --------------------------------------------------
 
-PAYPAL_CLIENT_ID = os.getenv("PAYPAL_CLIENT_ID")
-PAYPAL_SECRET = os.getenv("PAYPAL_SECRET")
+PAYPAL_CLIENT_ID = os.getenv("PAYPAL_CLIENT_ID", "").strip()
+PAYPAL_SECRET = os.getenv("PAYPAL_SECRET", "").strip()
 PAYPAL_BASE = "https://api-m.sandbox.paypal.com"
 
 # --------------------------------------------------
@@ -203,7 +203,6 @@ def cart():
 
 @app.route('/checkout')
 def checkout():
-    print("CHECKOUT PAYPAL_CLIENT_ID:", repr(PAYPAL_CLIENT_ID))
     if 'username' not in session:
         return redirect(url_for('signin'))
 
