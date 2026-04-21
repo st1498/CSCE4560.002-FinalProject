@@ -135,9 +135,8 @@ def validate_email(email) -> bool:
 
 @app.route('/login/google')
 def google_login():
-    # Redirects the user to the Google login screen
-    redirect_uri = url_for('google_authorize', _external=True)
-    return google.authorize_redirect(redirect_uri)
+    redirect_uri = "https://safelock-security.com/login/google/authorize"
+    return google.authorize_redirect(redirect_uri))
 
 
 @app.route('/login/google/authorize')
