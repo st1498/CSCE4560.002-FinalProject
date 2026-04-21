@@ -21,7 +21,7 @@ app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 # Load the credentials from environment variable
-basedir = os.path.abspath(os.path.dirname(__name__))
+basedir = os.path.abspath(os.path.dirname(__file__))
 load_dotenv(os.path.join(basedir, '.env'))
 
 the_host = os.getenv('HOST')
