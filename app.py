@@ -2,8 +2,10 @@ from flask import Flask, render_template, url_for, redirect, request, session, f
 from werkzeug.security import generate_password_hash
 from werkzeug.middleware.proxy_fix import ProxyFix
 from authlib.integrations.flask_client import OAuth
+from flask_limiter.util import get_remote_address
 from models import Base, Customer, Subscription
 from flask_sqlalchemy import SQLAlchemy
+from flask_limiter import Limiter
 from dotenv import load_dotenv
 from sqlalchemy import select
 from flask_cors import CORS
@@ -20,9 +22,20 @@ app = Flask(__name__)
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 CORS(app, resources={r"/api/*": {"origins": "*"}})
 
+# --------------------------------------------------
+# RATE LIMITING CONFIGURATION
+# --------------------------------------------------
+
+limiter = Limiter(
+    app=app,
+    key_func=get_remote_address,
+    default_limits=["200 per day", "50 per hour", "10 per minute"],
+    storage_uri="redis://localhost:6379",
+    strategy="fixed-window",
+)
+
 # Load the credentials from environment variable
 load_dotenv('/var/www/html/.env')
-
 
 the_host = os.getenv('HOST')
 the_user = os.getenv('USER')
@@ -134,6 +147,7 @@ def validate_email(email) -> bool:
 
 
 @app.route('/login/google')
+@limiter.limit("10 per minute")
 def google_login():
     redirect_uri = "https://safelock-security.com/login/google/authorize"
     return google.authorize_redirect(redirect_uri)
@@ -202,6 +216,7 @@ def cart():
     return render_template('cart.html')
 
 @app.route('/checkout')
+@limiter.limit("10 per minute")
 def checkout():
     if 'username' not in session:
         return redirect(url_for('signin'))
@@ -251,20 +266,24 @@ def profile(user_id):
     return render_template('profile.html', user=user, subscriptions=subscriptions)
 
 @app.route('/change_password')
+@limiter.limit("5 per minute")
 def change_password():
     flash('Password management is disabled. Please sign in with Google.', 'info')
     return redirect(url_for('signin'))
 
 @app.route('/forgot_password')
+@limiter.limit("5 per minute")
 def forgot_password():
     flash('Password recovery is disabled. Please sign in with Google.', 'info')
     return redirect(url_for('signin'))
 
 @app.route('/signin')
+@limiter.limit("5 per minute")
 def signin():
     return render_template('signin.html')
 
 @app.route('/signup')
+@limiter.limit("5 per minute")
 def signup():
     return render_template('signup.html')
 
@@ -273,6 +292,7 @@ def signup():
 # --------------------------------------------------
 
 @app.route("/api/paypal/create-order", methods=["POST"])
+@limiter.limit("10 per minute")
 def paypal_create_order():
     if 'username' not in session:
         return jsonify({"error": "Unauthorized"}), 403
@@ -318,6 +338,7 @@ def paypal_create_order():
     return jsonify(response.json())
 
 @app.route("/api/paypal/capture-order", methods=["POST"])
+@limiter.limit("10 per minute")
 def paypal_capture_order():
     if 'username' not in session:
         return jsonify({"error": "Unauthorized"}), 403
@@ -367,6 +388,7 @@ def calculate_cart_total():
     return round(total, 2)
 
 @app.route('/api/cart/add', methods=['POST'])
+@limiter.limit("10 per minute")
 def add_to_cart():
     if 'username' not in session:
         return jsonify({"error": "Unauthorized"}), 403
@@ -384,6 +406,38 @@ def add_to_cart():
     session['cart'] = cart
 
     return jsonify({"message": "Item added", "cart": cart})
+
+# --------------------------------------------------
+# ERROR HANDLERS
+# --------------------------------------------------
+
+@app.errorhandler(400)
+def bad_request(e):
+    return jsonify({"error": "Bad request"}), 400
+
+@app.errorhandler(401)
+def unauthorized(e):
+    return jsonify({"error": "Unauthorized request"}), 401
+
+@app.errorhandler(403)
+def forbidden(e):
+    return jsonify({"error": "Forbidden request"}), 403
+
+@app.errorhandler(404)
+def not_found(e):
+    return jsonify({"error": "Not found"}), 404
+
+@app.errorhandler(429)
+def ratelimit_handler(e):
+    return jsonify({
+        "status": 429,
+        "error": "Too many requests",
+        "message": "Rate limit exceeded. Please try again later.",
+    }), 429
+
+@app.errorhandler(500)
+def server_error(e):
+    return jsonify({"error": "Internal server error"}), 500
 
 
 if __name__ == '__main__':
