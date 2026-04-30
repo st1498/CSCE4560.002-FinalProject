@@ -326,7 +326,7 @@ def create_order():
         }
 
         # Call PayPal API
-        access_token = get_paypal_token()
+        access_token = get_paypal_access_token()
 
         response = requests.post(
             "https://api-m.sandbox.paypal.com/v2/checkout/orders",
