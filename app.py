@@ -356,7 +356,7 @@ def create_order():
         print("ERROR:", str(e))
         return jsonify({"error": str(e)}), 500
 
-@app.route("/api/paypal/capture-order", methods=["POST"])
+@app.route("/api/paypal/capture-order/<order_id>", methods=["POST"])
 @limiter.limit("10 per minute")
 def capture_order(order_id):
     if "user_id" not in session:
@@ -366,7 +366,7 @@ def capture_order(order_id):
         access_token = get_paypal_access_token()
 
         response = requests.post(
-            f"https://api-m.sandbox.paypal.com/v2/checkout/orders/{order_id}/capture",
+            f"{PAYPAL_BASE}/v2/checkout/orders/{order_id}/capture",
             headers={
                 "Content-Type": "application/json",
                 "Authorization": f"Bearer {access_token}"
@@ -377,16 +377,22 @@ def capture_order(order_id):
         print("PAYPAL CAPTURE RESPONSE:", data)
 
         if response.status_code not in [200, 201] or data.get("status") != "COMPLETED":
-            return jsonify({"error": "Payment not completed"}), 400
+            return jsonify({
+                "error": "Payment not completed",
+                "paypal_response": data
+            }), 400
 
         product_id = session.get("checkout_product_id")
+
+        print("SESSION USER:", session.get("user_id"))
+        print("SESSION PRODUCT:", product_id)
 
         if not product_id:
             return jsonify({"error": "No product in session"}), 400
 
         purchase = Subscription(
-            customer_id=session["user_id"],  # ✅ FIXED
-            product_id=product_id,
+            customer_id=session["user_id"],
+            product_id=int(product_id),
             paypal_order_id=order_id,
             status="active"
         )
@@ -394,11 +400,13 @@ def capture_order(order_id):
         db.session.add(purchase)
         db.session.commit()
 
+        print("PURCHASE SAVED:", purchase)
+
         return jsonify({"success": True})
 
     except Exception as e:
         db.session.rollback()
-        print("CAPTURE ERROR:", str(e))
+        print("CAPTURE ERROR:", repr(e))
         return jsonify({"error": str(e)}), 500
 # --------------------------------------------------
 # CART HELPERS
