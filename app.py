@@ -149,7 +149,7 @@ def validate_email(email) -> bool:
 @app.route('/login/google')
 @limiter.limit("10 per minute")
 def google_login():
-    redirect_uri = "https://safelocksecurity.xyz/login/google/authorize"
+    redirect_uri = url_for('google_authorize', _external=True)
     return google.authorize_redirect(redirect_uri)
 
 
