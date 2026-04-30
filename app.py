@@ -6,7 +6,7 @@ from flask_limiter.util import get_remote_address
 from models import Base, Customer, Subscription
 from flask_sqlalchemy import SQLAlchemy
 from flask_limiter import Limiter
-from dotenv import load_dotenv
+from dotenv import load_dotenvf
 from sqlalchemy import select
 from flask_cors import CORS
 import requests
@@ -304,49 +304,34 @@ def signup():
 
 @app.route("/api/paypal/create-order", methods=["POST"])
 @limiter.limit("10 per minute")
-def paypal_create_order():
-    if 'username' not in session:
-        return jsonify({"error": "Unauthorized"}), 403
+@app.route("/api/paypal/create-order", methods=["POST"])
+def create_order():
+    access_token = get_paypal_access_token()
 
-    total = calculate_cart_total()
-
-    if total <= 0:
-        return jsonify({"error": "Cart is empty"}), 400
-
-    token = get_paypal_access_token()
-    if not token:
-        return jsonify({"error": "PayPal authentication failed"}), 500
-
-    order_body = {
-        "intent": "CAPTURE",
-        "purchase_units": [
-            {
+    response = requests.post(
+        f"{PAYPAL_BASE}/v2/checkout/orders",
+        headers={
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {access_token}"
+        },
+        json={
+            "intent": "CAPTURE",
+            "purchase_units": [{
                 "amount": {
                     "currency_code": "USD",
-                    "value": f"{total:.2f}"
-                },
-                "description": "Safelock Security Order"
-            }
-        ]
-    }
+                    "value": "10.00"
+                }
+            }]
+        }
+    )
 
-    try:
-        response = requests.post(
-            f"{PAYPAL_BASE}/v2/checkout/orders",
-            headers={
-                "Content-Type": "application/json",
-                "Accept": "application/json",
-                "Authorization": f"Bearer {token}"
-            },
-            json=order_body,
-            timeout=10
-        )
-        response.raise_for_status()
-    except requests.exceptions.RequestException as e:
-        print("[PayPal ERROR] Order creation failed:", e)
-        return jsonify({"error": "Order creation failed"}), 500
+    data = response.json()
 
-    return jsonify(response.json())
+    print("PAYPAL RESPONSE:", data)  
+
+    return jsonify({
+        "id": data["id"]  
+    })
 
 @app.route("/api/paypal/capture-order", methods=["POST"])
 @limiter.limit("10 per minute")
