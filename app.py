@@ -180,7 +180,7 @@ def google_authorize():
             session['user_id'] = user_id
 
             flash('Signed in with Google successfully.', 'success')
-            return redirect(url_for('profile_redirect'))
+            return redirect(url_for('my_profile'))
 
         random_pass = secrets.token_urlsafe(16)
         password_hash = generate_password_hash(random_pass)
@@ -201,7 +201,7 @@ def google_authorize():
         session['user_id'] = new_user_id
 
         flash('Google account linked and signed in successfully.', 'success')
-        return redirect(url_for('profile_redirect'))
+        return redirect(url_for('my_profile'))
 
     except Exception as e:
         import traceback
@@ -253,7 +253,7 @@ def product_page(pk):
         return redirect(url_for('index'))
 
 @app.route('/profile')
-def profile_redirect():
+def my_profile():
     if 'user_id' not in session:
         return redirect(url_for('signin'))
     return redirect(url_for('profile', user_id=session['user_id']))
