@@ -49,7 +49,6 @@
 paypal.Buttons({
 
     createOrder: function(data, actions) {
-        // Set product BEFORE creating order
         return fetch("/api/set-product", {
             method: "POST",
             headers: {
@@ -64,35 +63,38 @@ paypal.Buttons({
                 method: "POST"
             });
         })
-        .then(res => res.text())
-        .then(text => {
-            console.log("RAW RESPONSE:", text);
-
-            try {
-                const data = JSON.parse(text);
-                return data.id;
-            } catch (e) {
-                throw new Error("Server did not return JSON");
-            }
+        .then(res => res.json())
+        .then(data => {
+            return data.id;
         });
     },
 
-  onApprove: function(data, actions) {
-    return fetch(`/api/paypal/capture-order/${data.orderID}`, {
-        method: "POST"
-    })
-    .then(res => res.json())
-    .then(details => {
-        console.log("CAPTURE DETAILS:", details);
+    onApprove: function(data, actions) {
+        return fetch("/api/paypal/capture-order/" + data.orderID, {
+            method: "POST"
+        })
+        .then(res => res.json())
+        .then(details => {
+            console.log("CAPTURE DETAILS:", details);
 
-        if (!details.success) {
-            throw new Error(details.error || "Capture failed");
-        }
+            if (!details.success) {
+                throw new Error(details.error || "Capture failed");
+            }
 
-        alert("Payment successful!");
-        window.location.href = "{{ url_for('profile') }}";
-    });
-},
+            // Safe string build (NO template literal issues)
+            const street = document.getElementById('street').value;
+            const city = document.getElementById('city').value;
+            const state = document.getElementById('state').value;
+            const zip = document.getElementById('zip').value;
+
+            if (street && city && state && zip) {
+                const fullAddress = street + ", " + city + ", " + state + " " + zip;
+                localStorage.setItem('userAddress', fullAddress);
+            }
+
+            alert("Payment successful!");
+            window.location.href = "{{ url_for('profile') }}";
+        });
     },
 
     onError: function(err) {
@@ -100,5 +102,5 @@ paypal.Buttons({
         alert("Payment failed. Please try again.");
     }
 
-}).render('#paypal-button-container');
+}).render("#paypal-button-container");
 </script>
