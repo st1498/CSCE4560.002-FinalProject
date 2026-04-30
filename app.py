@@ -6,7 +6,7 @@ from flask_limiter.util import get_remote_address
 from models import Base, Customer, Subscription
 from flask_sqlalchemy import SQLAlchemy
 from flask_limiter import Limiter
-from dotenv import load_dotenvf
+from dotenv import load_dotenv
 from sqlalchemy import select
 from flask_cors import CORS
 import requests
