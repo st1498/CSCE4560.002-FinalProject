@@ -377,19 +377,19 @@ def paypal_capture_order():
 user_id = session.get("user_id")
 cart = session.get("cart", [])
 
-for item in cart:
-    subscription = Subscription(
-        customer_id=user_id,
-        name=item.get("name"),
-        price=item.get("price")
-    )
+    for item in cart:
+        subscription = Subscription(
+            customer_id=user_id,
+            name=item.get("name"),
+            price=item.get("price")
+        )
     db.session.add(subscription)
 
-db.session.commit()
+    db.session.commit()
 
-session.pop("cart", None)
+    session.pop("cart", None)
 
-return jsonify(capture_data)
+    return jsonify(capture_data)
 # --------------------------------------------------
 # CART HELPERS
 # --------------------------------------------------
