@@ -389,7 +389,7 @@ db.session.commit()
 
 session.pop("cart", None)
 
-return jsonify(capture_data)))
+return jsonify(capture_data)
 # --------------------------------------------------
 # CART HELPERS
 # --------------------------------------------------
