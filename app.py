@@ -393,7 +393,6 @@ def capture_order(order_id):
         purchase = Subscription(
             customer_id=session["user_id"],
             product_id=int(product_id),
-            paypal_order_id=order_id,
             status="active"
         )
 
