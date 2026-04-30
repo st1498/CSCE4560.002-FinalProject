@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+    <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -48,19 +48,21 @@
     <script>
         paypal.Buttons({
             createOrder: function(data, actions) {
-                // Call your Flask backend to create the order
                 return fetch("/api/paypal/create-order", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({
-                        // optionally pass cart total here
-                    })
+                    method: "POST"
                 })
-                .then(res => res.json())
-                .then(data => data.id);
-            },
+                .then(res => res.text())  // 👈 read raw first
+                .then(text => {
+                    console.log("RAW RESPONSE:", text);
+
+                    try {
+                        const data = JSON.parse(text);
+                        return data.id;
+                    } catch (e) {
+                        throw new Error("Server did not return JSON");
+                    }
+                });
+            }
 
             onApprove: function(data, actions) {
                 // Capture the order on your backend
