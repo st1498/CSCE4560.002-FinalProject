@@ -204,7 +204,9 @@ def google_authorize():
         return redirect(url_for('profile', user_id=new_user_id))
 
     except Exception as e:
-        print("[GOOGLE OAUTH ERROR]", e)
+        import traceback
+        print("[GOOGLE OAUTH ERROR]", repr(e))
+        traceback.print_exc()
         flash('Google login failed.', 'error')
         return redirect(url_for('signin'))
 
