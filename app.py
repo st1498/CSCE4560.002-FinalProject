@@ -116,14 +116,17 @@ def add_customer(user_details):
         last_name=last_name,
         username=username,
         email=email,
-        password_hash=password_hash
+        password_hash=none
     )
 
     try:
         db.session.add(new_customer)
         db.session.commit()
-    except Exception:
+        return new_customer.id
+    except Exception as e:
         db.session.rollback()
+        print("[DB ERROR] Could not add customer:", repr(e))
+        return None
 
 
 def get_customer_id(user_input):
@@ -159,7 +162,9 @@ def google_login():
 def google_authorize():
     try:
         token = google.authorize_access_token()
-        user_info = google.get('https://openidconnect.googleapis.com/v1/userinfo').json()
+        user_info = google.get(
+            'https://openidconnect.googleapis.com/v1/userinfo'
+        ).json()
 
         if not user_info:
             flash('Google login failed.', 'error')
@@ -169,22 +174,23 @@ def google_authorize():
         first_name = user_info.get('given_name', 'Google')
         last_name = user_info.get('family_name', 'User')
 
-        user_id = get_customer_id(email)
+        if not email:
+            flash('Google account did not provide an email.', 'error')
+            return redirect(url_for('signin'))
 
-        if user_id:
-            customer = db.session.execute(
-                select(Customer).where(Customer.id == user_id)
-            ).scalar_one_or_none()
+        # Check if this Google email already exists
+        existing_user = db.session.execute(
+            select(Customer).where(Customer.email == email)
+        ).scalar_one_or_none()
 
-            session['username'] = customer.username
-            session['user_id'] = user_id
+        if existing_user:
+            session['username'] = existing_user.username
+            session['user_id'] = existing_user.id
 
             flash('Signed in with Google successfully.', 'success')
             return redirect(url_for('profile'))
 
-        random_pass = secrets.token_urlsafe(16)
-        password_hash = generate_password_hash(random_pass)
-
+        # Create username from email
         base_username = email.split('@')[0]
         username = base_username
 
@@ -193,23 +199,32 @@ def google_authorize():
             username = f"{base_username}{counter}"
             counter += 1
 
-        user_details = (first_name, last_name, username, email, password_hash)
-        add_customer(user_details)
 
-        new_user_id = get_customer_id(email)
-        session['username'] = username
-        session['user_id'] = new_user_id
+        new_customer = Customer(
+            first_name=first_name,
+            last_name=last_name,
+            username=username,
+            email=email,
+            password_hash=none
+        )
+
+        db.session.add(new_customer)
+        db.session.commit()
+
+        session['username'] = new_customer.username
+        session['user_id'] = new_customer.id
 
         flash('Google account linked and signed in successfully.', 'success')
         return redirect(url_for('profile'))
 
     except Exception as e:
+        db.session.rollback()
         import traceback
         print("[GOOGLE OAUTH ERROR]", repr(e))
         traceback.print_exc()
+
         flash('Google login failed.', 'error')
         return redirect(url_for('signin'))
-
 # --------------------------------------------------
 # WEBSITE ROUTES
 # --------------------------------------------------
