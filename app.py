@@ -22,6 +22,8 @@ app = Flask(__name__)
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 CORS(app, resources={r"/api/*": {"origins": "*"}})
 
+app.config['PREFERRED_URL_SCHEME'] = 'https
+
 # --------------------------------------------------
 # RATE LIMITING CONFIGURATION
 # --------------------------------------------------
@@ -148,8 +150,9 @@ def validate_email(email) -> bool:
 
 @app.route('/login/google')
 @limiter.limit("10 per minute")
+@app.route('/login/google')
 def google_login():
-    redirect_uri = url_for('google_authorize', _external=True)
+    redirect_uri = url_for('google_authorize', _external=True, _scheme='https')
     return google.authorize_redirect(redirect_uri)
 
 
