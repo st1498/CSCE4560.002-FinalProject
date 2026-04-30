@@ -159,7 +159,7 @@ def google_login():
 def google_authorize():
     try:
         token = google.authorize_access_token()
-        user_info = google.parse_id_token(token)
+        user_info = google.get('userinfo').json()
 
         if not user_info:
             flash('Google login failed.', 'error')
