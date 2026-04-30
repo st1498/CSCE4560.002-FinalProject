@@ -374,8 +374,8 @@ def paypal_capture_order():
 
     capture_data = response.json()
 
-user_id = session.get("user_id")
-cart = session.get("cart", [])
+    user_id = session.get("user_id")
+    cart = session.get("cart", [])
 
     for item in cart:
         subscription = Subscription(
@@ -383,7 +383,7 @@ cart = session.get("cart", [])
             name=item.get("name"),
             price=item.get("price")
         )
-    db.session.add(subscription)
+        db.session.add(subscription)
 
     db.session.commit()
 
