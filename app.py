@@ -155,53 +155,56 @@ def google_login():
 
 @app.route('/login/google/authorize')
 def google_authorize():
-    token = google.authorize_access_token()
-    user_info = token.get('userinfo')
+    try:
+        token = google.authorize_access_token()
+        user_info = google.parse_id_token(token)
 
-    if user_info:
+        if not user_info:
+            flash('Google login failed.', 'error')
+            return redirect(url_for('signin'))
+
         email = user_info.get('email')
         first_name = user_info.get('given_name', 'Google')
         last_name = user_info.get('family_name', 'User')
 
-        # Check if user exists by email using your existing function
         user_id = get_customer_id(email)
 
         if user_id:
-            # User exists, grab their username and log them in
-            customer = db.session.execute(select(Customer).where(Customer.id == user_id)).scalar_one_or_none()
+            customer = db.session.execute(
+                select(Customer).where(Customer.id == user_id)
+            ).scalar_one_or_none()
+
             session['username'] = customer.username
+            session['user_id'] = user_id
+
             flash('Signed in with Google successfully.', 'success')
             return redirect(url_for('profile', user_id=user_id))
-        else:
-            # New user via Google: Auto-create an account
-            # Generate a secure random password since they use Google to log in
-            random_pass = secrets.token_urlsafe(16)
-            #password_hash = PasswordHasher.hash(random_pass)
-            password_hash = generate_password_hash(random_pass)
 
-            # Create a base username from their email prefix
-            base_username = email.split('@')[0]
-            username = base_username
+        random_pass = secrets.token_urlsafe(16)
+        password_hash = generate_password_hash(random_pass)
 
-            # Ensure the username is unique in your database
-            counter = 1
-            while validate_username(username):
-                username = f"{base_username}{counter}"
-                counter += 1
+        base_username = email.split('@')[0]
+        username = base_username
 
-            # Use your existing add_customer function
-            user_details = (first_name, last_name, username, email, password_hash)
-            add_customer(user_details)
+        counter = 1
+        while validate_username(username):
+            username = f"{base_username}{counter}"
+            counter += 1
 
-            # Log them in
-            new_user_id = get_customer_id(email)
-            session['username'] = username
-            session['user_id'] = new_user_id
-            flash('Google account linked and signed in successfully.', 'success')
-            return redirect(url_for('profile', user_id=new_user_id))
+        user_details = (first_name, last_name, username, email, password_hash)
+        add_customer(user_details)
 
-    flash('Google login failed.', 'error')
-    return redirect(url_for('signin'))
+        new_user_id = get_customer_id(email)
+        session['username'] = username
+        session['user_id'] = new_user_id
+
+        flash('Google account linked and signed in successfully.', 'success')
+        return redirect(url_for('profile', user_id=new_user_id))
+
+    except Exception as e:
+        print("[GOOGLE OAUTH ERROR]", e)
+        flash('Google login failed.', 'error')
+        return redirect(url_for('signin'))
 
 # --------------------------------------------------
 # WEBSITE ROUTES
