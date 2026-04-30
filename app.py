@@ -304,7 +304,6 @@ def signup():
 
 @app.route("/api/paypal/create-order", methods=["POST"])
 @limiter.limit("10 per minute")
-@app.route("/api/paypal/create-order", methods=["POST"])
 def create_order():
     access_token = get_paypal_access_token()
 
