@@ -307,6 +307,13 @@ def signin():
 def signup():
     return render_template('signup.html')
 
+@app.route("/api/set-product", methods=["POST"])
+@limiter.limit("5 per minute")
+def set_product():
+    data = request.get_json()
+    session["checkout_product_id"] = data.get("product_id")
+    print("SET PRODUCT:", session["checkout_product_id"])
+    return jsonify({"success": True})
 # --------------------------------------------------
 # PAYPAL ROUTES
 # --------------------------------------------------
@@ -352,11 +359,11 @@ def create_order():
 @app.route("/api/paypal/capture-order", methods=["POST"])
 @limiter.limit("10 per minute")
 def capture_order(order_id):
-    if "customer_id" not in session:
+    if "user_id" not in session:
         return jsonify({"error": "Not logged in"}), 401
 
     try:
-        access_token = get_paypal_token()
+        access_token = get_paypal_access_token()
 
         response = requests.post(
             f"https://api-m.sandbox.paypal.com/v2/checkout/orders/{order_id}/capture",
@@ -370,13 +377,15 @@ def capture_order(order_id):
         print("PAYPAL CAPTURE RESPONSE:", data)
 
         if response.status_code not in [200, 201] or data.get("status") != "COMPLETED":
-            return jsonify({"error": "Payment not completed", "paypal_response": data}), 400
+            return jsonify({"error": "Payment not completed"}), 400
 
-        # save purchased product to user here
         product_id = session.get("checkout_product_id")
 
+        if not product_id:
+            return jsonify({"error": "No product in session"}), 400
+
         purchase = Subscription(
-            customer_id=session["customer_id"],
+            customer_id=session["user_id"],  # ✅ FIXED
             product_id=product_id,
             paypal_order_id=order_id,
             status="active"
