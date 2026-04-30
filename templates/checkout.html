@@ -45,60 +45,66 @@
     <!-- PayPal JS SDK -->
     <script src="https://www.sandbox.paypal.com/sdk/js?client-id={{ paypal_client_id }}&currency=USD"></script>
 
-    <script>
-        paypal.Buttons({
-            createOrder: function(data, actions) {
-                return fetch("/api/paypal/create-order", {
-                    method: "POST"
-                })
-                .then(res => res.text())  // 👈 read raw first
-                .then(text => {
-                    console.log("RAW RESPONSE:", text);
+<script>
+paypal.Buttons({
 
-                    try {
-                        const data = JSON.parse(text);
-                        return data.id;
-                    } catch (e) {
-                        throw new Error("Server did not return JSON");
-                    }
-                });
+    createOrder: function(data, actions) {
+        // Set product BEFORE creating order
+        return fetch("/api/set-product", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
             },
+            body: JSON.stringify({
+                product_id: 1
+            })
+        })
+        .then(() => {
+            return fetch("/api/paypal/create-order", {
+                method: "POST"
+            });
+        })
+        .then(res => res.text())
+        .then(text => {
+            console.log("RAW RESPONSE:", text);
 
-            onApprove: function(data, actions) {
-                // Capture the order on your backend
-                return fetch("/api/paypal/capture-order", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({
-                        orderID: data.orderID
-                    })
-                })
-                .then(res => res.json())
-                .then(details => {
-                    // Save address locally (same logic you had)
-                    const street = document.getElementById('street').value;
-                    const city = document.getElementById('city').value;
-                    const state = document.getElementById('state').value;
-                    const zip = document.getElementById('zip').value;
+            try {
+                const data = JSON.parse(text);
+                return data.id;
+            } catch (e) {
+                throw new Error("Server did not return JSON");
+            }
+        });
+    },
 
-                    if (street && city && state && zip) {
-                        const fullAddress = `${street}, ${city}, ${state} ${zip}`;
-                        localStorage.setItem('userAddress', fullAddress);
-                    }
+    onApprove: function(data, actions) {
+        // Capture order WITH orderID in URL
+        return fetch(`/api/paypal/capture-order/${data.orderID}`, {
+            method: "POST"
+        })
+        .then(res => res.json())
+        .then(details => {
 
-                    alert("Payment successful!");
-                    window.location.href = "{{ url_for('index') }}";
-                });
-            },
+            // Save address locally
+            const street = document.getElementById('street').value;
+            const city = document.getElementById('city').value;
+            const state = document.getElementById('state').value;
+            const zip = document.getElementById('zip').value;
 
-            onError: function(err) {
-                console.error(err);
-                alert("Payment failed. Please try again.");
+            if (street && city && state && zip) {
+                const fullAddress = `${street}, ${city}, ${state} ${zip}`;
+                localStorage.setItem('userAddress', fullAddress);
             }
 
-        }).render('#paypal-button-container');
-    </script>
-</body>
-</html>
+            alert("Payment successful!");
+            window.location.href = "{{ url_for('index') }}";
+        });
+    },
+
+    onError: function(err) {
+        console.error(err);
+        alert("Payment failed. Please try again.");
+    }
+
+}).render('#paypal-button-container');
+</script>
