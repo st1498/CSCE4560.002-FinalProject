@@ -351,53 +351,46 @@ def create_order():
 
 @app.route("/api/paypal/capture-order", methods=["POST"])
 @limiter.limit("10 per minute")
-def paypal_capture_order():
-    if 'username' not in session:
-        return jsonify({"error": "Unauthorized"}), 403
-
-    data = request.get_json()
-    if not data or "orderID" not in data:
-        return jsonify({"error": "Missing orderID"}), 400
-
-    orderID = data["orderID"]
-
-    token = get_paypal_access_token()
-    if not token:
-        return jsonify({"error": "PayPal authentication failed"}), 500
+def capture_order(order_id):
+    if "customer_id" not in session:
+        return jsonify({"error": "Not logged in"}), 401
 
     try:
+        access_token = get_paypal_token()
+
         response = requests.post(
-            f"{PAYPAL_BASE}/v2/checkout/orders/{orderID}/capture",
+            f"https://api-m.sandbox.paypal.com/v2/checkout/orders/{order_id}/capture",
             headers={
                 "Content-Type": "application/json",
-                "Accept": "application/json",
-                "Authorization": f"Bearer {token}"
-            },
-            timeout=10
+                "Authorization": f"Bearer {access_token}"
+            }
         )
-        response.raise_for_status()
-    except requests.exceptions.RequestException as e:
-        print("[PayPal ERROR] Capture failed:", e)
-        return jsonify({"error": "Capture failed"}), 500
 
-    capture_data = response.json()
+        data = response.json()
+        print("PAYPAL CAPTURE RESPONSE:", data)
 
-    user_id = session.get("user_id")
-    cart = session.get("cart", [])
+        if response.status_code not in [200, 201] or data.get("status") != "COMPLETED":
+            return jsonify({"error": "Payment not completed", "paypal_response": data}), 400
 
-    for item in cart:
-        subscription = Subscription(
-            customer_id=user_id,
-            name=item.get("name"),
-            price=item.get("price")
+        # save purchased product to user here
+        product_id = session.get("checkout_product_id")
+
+        purchase = Subscription(
+            customer_id=session["customer_id"],
+            product_id=product_id,
+            paypal_order_id=order_id,
+            status="active"
         )
-        db.session.add(subscription)
 
-    db.session.commit()
+        db.session.add(purchase)
+        db.session.commit()
 
-    session.pop("cart", None)
+        return jsonify({"success": True})
 
-    return jsonify(capture_data)
+    except Exception as e:
+        db.session.rollback()
+        print("CAPTURE ERROR:", str(e))
+        return jsonify({"error": str(e)}), 500
 # --------------------------------------------------
 # CART HELPERS
 # --------------------------------------------------
