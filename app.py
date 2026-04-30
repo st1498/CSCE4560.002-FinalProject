@@ -1,5 +1,6 @@
 from flask import Flask, render_template, url_for, redirect, request, session, flash, jsonify
 from werkzeug.security import generate_password_hash
+from datetime import datetime, timedelta
 from werkzeug.middleware.proxy_fix import ProxyFix
 from authlib.integrations.flask_client import OAuth
 from flask_limiter.util import get_remote_address
@@ -393,7 +394,9 @@ def capture_order(order_id):
         purchase = Subscription(
             customer_id=session["user_id"],
             product_id=int(product_id),
-            status="active"
+            license_key=secrets.token_hex(10),
+            start_date=datetime.utcnow(),
+            end_date=datetime.utcnow() + timedelta(days=30)
         )
 
         db.session.add(purchase)
