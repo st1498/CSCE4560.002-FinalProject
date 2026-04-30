@@ -314,32 +314,40 @@ def signup():
 @app.route("/api/paypal/create-order", methods=["POST"])
 @limiter.limit("10 per minute")
 def create_order():
-    access_token = get_paypal_access_token()
-
-    response = requests.post(
-        f"{PAYPAL_BASE}/v2/checkout/orders",
-        headers={
-            "Content-Type": "application/json",
-            "Authorization": f"Bearer {access_token}"
-        },
-        json={
+    try:
+        order = {
             "intent": "CAPTURE",
             "purchase_units": [{
                 "amount": {
                     "currency_code": "USD",
-                    "value": "10.00"
+                    "value": "9.99"
                 }
             }]
         }
-    )
 
-    data = response.json()
+        # Call PayPal API
+        access_token = get_paypal_token()
 
-    print("PAYPAL RESPONSE:", data)  
+        response = requests.post(
+            "https://api-m.sandbox.paypal.com/v2/checkout/orders",
+            headers={
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {access_token}"
+            },
+            json=order
+        )
 
-    return jsonify({
-        "id": data["id"]  
-    })
+        data = response.json()
+
+        print("PAYPAL RESPONSE:", data)
+
+        return jsonify({
+            "id": data["id"]
+        })
+
+    except Exception as e:
+        print("ERROR:", str(e))
+        return jsonify({"error": str(e)}), 500
 
 @app.route("/api/paypal/capture-order", methods=["POST"])
 @limiter.limit("10 per minute")
