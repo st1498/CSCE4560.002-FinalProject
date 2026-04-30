@@ -19,7 +19,7 @@ import os
 # --------------------------------------------------
 
 app = Flask(__name__)
-app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
+app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1, x_for=1)
 CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 app.config['PREFERRED_URL_SCHEME'] = 'https'
@@ -116,7 +116,7 @@ def add_customer(user_details):
         last_name=last_name,
         username=username,
         email=email,
-        password_hash=none
+        password_hash= None
     )
 
     try:
@@ -205,7 +205,7 @@ def google_authorize():
             last_name=last_name,
             username=username,
             email=email,
-            password_hash=none
+            password_hash= None
         )
 
         db.session.add(new_customer)
@@ -446,3 +446,7 @@ def ratelimit_handler(e):
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8080, debug=True)
+    app.config.update(
+    SESSION_COOKIE_SECURE=True,
+    SESSION_COOKIE_SAMESITE="None"
+)
