@@ -77,28 +77,22 @@ paypal.Buttons({
         });
     },
 
-    onApprove: function(data, actions) {
-        // Capture order WITH orderID in URL
-        return fetch(`/api/paypal/capture-order/${data.orderID}`, {
-            method: "POST"
-        })
-        .then(res => res.json())
-        .then(details => {
+  onApprove: function(data, actions) {
+    return fetch(`/api/paypal/capture-order/${data.orderID}`, {
+        method: "POST"
+    })
+    .then(res => res.json())
+    .then(details => {
+        console.log("CAPTURE DETAILS:", details);
 
-            // Save address locally
-            const street = document.getElementById('street').value;
-            const city = document.getElementById('city').value;
-            const state = document.getElementById('state').value;
-            const zip = document.getElementById('zip').value;
+        if (!details.success) {
+            throw new Error(details.error || "Capture failed");
+        }
 
-            if (street && city && state && zip) {
-                const fullAddress = `${street}, ${city}, ${state} ${zip}`;
-                localStorage.setItem('userAddress', fullAddress);
-            }
-
-            alert("Payment successful!");
-            window.location.href = "{{ url_for('index') }}";
-        });
+        alert("Payment successful!");
+        window.location.href = "{{ url_for('profile') }}";
+    });
+},
     },
 
     onError: function(err) {
