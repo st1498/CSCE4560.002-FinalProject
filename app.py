@@ -116,7 +116,7 @@ def add_customer(user_details):
         last_name=last_name,
         username=username,
         email=email,
-        password_hash= None
+        password_hash= "GOOGLE_OAUTH_ONLY"
     )
 
     try:
@@ -205,7 +205,7 @@ def google_authorize():
             last_name=last_name,
             username=username,
             email=email,
-            password_hash= None
+            password_hash= "GOOGLE_OAUTH_ONLY"
         )
 
         db.session.add(new_customer)
