@@ -436,9 +436,9 @@ def ratelimit_handler(e):
         "message": "Rate limit exceeded. Please try again later.",
     }), 429
 
-@app.errorhandler(500)
-def server_error(e):
-    return jsonify({"error": "Internal server error"}), 500
+#@app.errorhandler(500)
+#def server_error(e):
+#    return jsonify({"error": "Internal server error"}), 500
 
 
 if __name__ == '__main__':
