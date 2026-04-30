@@ -180,7 +180,7 @@ def google_authorize():
             session['user_id'] = user_id
 
             flash('Signed in with Google successfully.', 'success')
-            return redirect(url_for('my_profile'))
+            return redirect(url_for('profile'))
 
         random_pass = secrets.token_urlsafe(16)
         password_hash = generate_password_hash(random_pass)
@@ -201,7 +201,7 @@ def google_authorize():
         session['user_id'] = new_user_id
 
         flash('Google account linked and signed in successfully.', 'success')
-        return redirect(url_for('my_profile'))
+        return redirect(url_for('profile'))
 
     except Exception as e:
         import traceback
@@ -253,24 +253,18 @@ def product_page(pk):
         return redirect(url_for('index'))
 
 @app.route('/profile')
-def my_profile():
+def profile():
     if 'user_id' not in session:
         return redirect(url_for('signin'))
-    return redirect(url_for('profile', user_id=session['user_id']))
 
-@app.route('/profile/<int:user_id>')
-def profile(user_id):
-    # Ensure the logged-in user can only see their profile
-    if 'username' not in session:
-        return redirect(url_for('signin'))
+    user_id = session['user_id']
 
-    # Fetch user data
     user = db.session.get(Customer, user_id)
     if not user:
-        flash("Profile not found.", "error")
-        return redirect(url_for('index'))
+        session.clear()
+        flash("Profile not found. Please sign in again.", "error")
+        return redirect(url_for('signin'))
 
-    # Fetch subscriptions linked to this customer
     stmt = select(Subscription).where(Subscription.customer_id == user_id)
     subscriptions = db.session.execute(stmt).scalars().all()
 
